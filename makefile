@@ -1,3 +1,6 @@
+VERSION_JAIME := 0.1.1
+VERSION_AGENT := 0.1.1
+
 
 jaime j:
 	docker run --rm -d \
@@ -6,7 +9,7 @@ jaime j:
 		-v jaime:/root/.jaime \
 		-p 5000:80 \
 		--network=docker-net \
-		brianwolf94/jaime:0.1.1
+		brianwolf94/jaime:$(VERSION_JAIME)
 
 
 agent a:
@@ -18,7 +21,7 @@ agent a:
 		--network=docker-net \
 		-e JAIME_URL=http://jaime:80 \
 		-e RUN_ON_DOCKER=true \
-		brianwolf94/jaime-agent:0.1.1
+		brianwolf94/jaime-agent:$(VERSION_AGENT)
 
 
 logs-jaime lj:
