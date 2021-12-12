@@ -42,7 +42,7 @@ logs-agent la1:
 
 
 kill k:
-	docker kill jaime agent1
+	docker kill jaime agent1 dozzle
 	docker network rm docker-net
 
 
