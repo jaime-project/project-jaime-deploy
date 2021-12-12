@@ -1,9 +1,9 @@
-version: "3.8"
+version: "3.7"
 
 services:
 
     jaime:
-        image: brianwolf94/jaime:0.1.1
+        image: brianwolf94/jaime:0.5.1
         restart: on-failure:3
         environment:
           - LOGS_LEVEL=INFO
@@ -17,13 +17,14 @@ services:
             - 5000:80
 
     agent:
-        image: brianwolf94/jaime-agent:0.1.1
+        image: brianwolf94/jaime-agent:0.5.1
         restart: on-failure:3
         environment:
           - LOGS_LEVEL=INFO
           - LOGS_BACKUPS=3
           - AGENT_TYPE=OC
           - JAIME_URL=http://jaime:80
+          - RUN_ON_DOCKER=true
         volumes:
             - agent:/root/.jaime-agent:rw
         networks:
