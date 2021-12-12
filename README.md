@@ -4,7 +4,7 @@
 
 Se utiliza un makefile junto con docker porque docker-compose parece tener un bug con la red que hace que no ande
 
-![alt](img/jaime.png)
+![alt](img/logo.png)
 
 ## :gear: Requisitos
 
@@ -17,15 +17,11 @@ Se utiliza un makefile junto con docker porque docker-compose parece tener un bu
 # Corre el proyecto, levanta un Jaime con un agente
 make r
 
-# Logs de jaime
-make lj
-
-# Logs del agente
-make la
-
 # Para el proyecto sin eliminar los volumes
 make k
 ```
+
+Para los logs ingresar al [dozzle](http://localhost:8080) local
 
 ## :books: Referencias
 
