@@ -1,5 +1,6 @@
-VERSION_JAIME := 0.5.1
-VERSION_AGENT := 0.5.1
+VERSION_FRONT := 0.1.0
+VERSION_JAIME := 0.6.0
+VERSION_AGENT := 0.6.0
 
 
 jaime j:
@@ -23,6 +24,14 @@ agent1 a1:
 		-e RUN_ON_DOCKER=true \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 
+front f:
+	docker run --rm -d \
+		--name=front \
+		--hostname=front \
+		-p 4200:80 \
+		--network=docker-net \
+		brianwolf94/jaime-front:$(VERSION_FRONT)
+
 dozzle d:
 	docker run --rm -d \
 		--name=dozzle \
@@ -42,11 +51,11 @@ logs-agent la1:
 
 
 kill k:
-	docker kill jaime agent1 dozzle
+	docker kill jaime agent1 front dozzle
 	docker network rm docker-net
 
 
 network n:
 	docker network create docker-net
 	
-run r: n d j a1 
+run r: n d j a1 f
