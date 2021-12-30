@@ -1,6 +1,6 @@
-VERSION_FRONT := 0.2.0
-VERSION_JAIME := 0.7.0
-VERSION_AGENT := 0.7.0
+VERSION_FRONT := 0.5.0
+VERSION_JAIME := 0.10.0
+VERSION_AGENT := 0.9.0
 
 
 jaime j:
@@ -23,7 +23,22 @@ agent1 a1:
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7000 \
 		-e JAIME_URL=http://localhost:5000 \
+		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
+
+		
+agent2 a2:
+	docker run --rm -d \
+		--name=agent2 \
+		--hostname=agent2 \
+		-v jaime-agent:/root/.jaime-agent \
+		--network=host \
+		-e PYTHON_HOST=localhost \
+		-e PYTHON_PORT=7001 \
+		-e JAIME_URL=http://localhost:5000 \
+		-e RUN_ON_DOCKER=false \
+		brianwolf94/jaime-agent:$(VERSION_AGENT)
+		
 
 front f:
 	docker run --rm -d \
@@ -42,7 +57,7 @@ dozzle d:
 
 
 kill k:
-	docker kill jaime front dozzle agent1
+	docker kill jaime front dozzle agent1 agent2
 
 
-run r: d j f a1
+run r: d j f a1 a2
