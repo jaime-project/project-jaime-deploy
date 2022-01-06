@@ -18,6 +18,7 @@ agent1 a1:
 		--name=agent1 \
 		--hostname=agent1 \
 		-v jaime-agent:/root/.jaime-agent \
+		-v shared:/data:rw \
 		-p 7000:80 \
 		--network=docker-net \
 		-e JAIME_URL=http://jaime:80 \
@@ -30,6 +31,7 @@ agent2 a2:
 		--name=agent2 \
 		--hostname=agent2 \
 		-v jaime-agent:/root/.jaime-agent \
+		-v shared:/data:rw \
 		-p 7001:80 \
 		--network=docker-net \
 		-e JAIME_URL=http://jaime:80 \
@@ -53,13 +55,22 @@ dozzle d:
 		--network=docker-net \
 		amir20/dozzle
 
+filebrowser fb:
+	docker run --rm -d \
+		--name=filebrowser \
+		--hostname=filebrowser \
+		-v shared:/data:rw \
+		-v shared:/config:rw \
+		-p 9090:8080 \
+		--network=docker-net \
+		hurlenko/filebrowser
 
 kill k:
-	docker kill jaime agent1 agent2 front dozzle
+	docker kill jaime agent1 agent2 front dozzle filebrowser
 	docker network rm docker-net
 
 
 network n:
 	docker network create docker-net
 	
-run r: n d j a1 a2 f
+run r: n d j a1 a2 f fb
