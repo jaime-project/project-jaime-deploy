@@ -50,13 +50,13 @@ front f:
 		--network=host \
 		brianwolf94/jaime-front:$(VERSION_FRONT)
 
-dozzle d:
-	docker run --rm -d \
-		--name=dozzle \
-		--hostname=dozzle \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		--network=host \
-		amir20/dozzle
+# dozzle d:
+# 	docker run --rm -d \
+# 		--name=dozzle \
+# 		--hostname=dozzle \
+# 		-v /var/run/docker.sock:/var/run/docker.sock \
+# 		--network=host \
+# 		amir20/dozzle
 
 
 filebrowser fb:
@@ -65,10 +65,10 @@ filebrowser fb:
 		--hostname=filebrowser \
 		-v shared:/data:rw \
 		-v shared:/config:rw \
-		-p 9090:8080 \
+		--network=host \
 		hurlenko/filebrowser
 
 kill k:
-	docker kill jaime agent1 agent2 front dozzle filebrowser
+	docker kill jaime agent1 agent2 front filebrowser #dozzle
 	
-run r: d j a1 a2 f fb
+run r: j a1 a2 f fb #d
