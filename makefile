@@ -1,6 +1,6 @@
 VERSION_FRONT := 0.9.0
-VERSION_JAIME := 0.11.0
-VERSION_AGENT := 0.10.0
+VERSION_JAIME := 0.12.0
+VERSION_AGENT := 0.11.0
 
 
 jaime j:
@@ -8,6 +8,7 @@ jaime j:
 		--name=jaime \
 		--hostname=jaime \
 		-v jaime:/root/.jaime \
+		-v shared:/data:rw \
 		-p 5000:80 \
 		--network=docker-net \
 		brianwolf94/jaime:$(VERSION_JAIME)
