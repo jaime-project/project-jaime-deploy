@@ -66,15 +66,9 @@ filebrowser fb:
 		-v shared:/data:rw \
 		-v shared:/config:rw \
 		-p 9090:8080 \
-		--network=docker-net \
 		hurlenko/filebrowser
 
 kill k:
 	docker kill jaime agent1 agent2 front dozzle filebrowser
-	docker network rm docker-net
-
-
-network n:
-	docker network create docker-net
 	
-run r: n d j a1 a2 f fb
+run r: d j a1 a2 f fb
