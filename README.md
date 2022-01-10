@@ -23,6 +23,8 @@ make k
 
 Para los logs ingresar al [dozzle](http://localhost:8080) local
 
+Para el filesystem ingresar al [filebrowser](http://localhost:9090) local
+
 ## :books: Referencias
 
 * [Iconos](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
