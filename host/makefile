@@ -1,4 +1,4 @@
-VERSION_FRONT := 0.9.0
+VERSION_FRONT := 0.10.0
 VERSION_JAIME := 0.12.0
 VERSION_AGENT := 0.11.0
 
@@ -6,11 +6,12 @@ VERSION_AGENT := 0.11.0
 jaime j:
 	docker run --rm -d \
 		--name=jaime \
+		--hostname=jaime \
 		-v jaime:/root/.jaime \
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
-		-e PYTHON_PORT=5000 \
+		-e PYTHON_PORT=8080 \
 		brianwolf94/jaime:$(VERSION_JAIME)
 
 
@@ -22,7 +23,7 @@ agent1 a1:
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7000 \
-		-e JAIME_URL=http://localhost:5000 \
+		-e JAIME_URL=http://localhost:8080 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 
@@ -35,7 +36,7 @@ agent2 a2:
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7001 \
-		-e JAIME_URL=http://localhost:5000 \
+		-e JAIME_URL=http://localhost:8080 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -49,7 +50,7 @@ agent3 a3:
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7002 \
-		-e JAIME_URL=http://localhost:5000 \
+		-e JAIME_URL=http://localhost:8080 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -63,7 +64,7 @@ agent4 a4:
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7003 \
-		-e JAIME_URL=http://localhost:5000 \
+		-e JAIME_URL=http://localhost:8080 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -77,7 +78,7 @@ agent5 a5:
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7004 \
-		-e JAIME_URL=http://localhost:5000 \
+		-e JAIME_URL=http://localhost:8080 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -91,7 +92,7 @@ agent6 a6:
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7005 \
-		-e JAIME_URL=http://localhost:5000 \
+		-e JAIME_URL=http://localhost:8080 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -100,6 +101,8 @@ front f:
 	docker run --rm -d \
 		--name=front \
 		--network=host \
+		-e JAIME_HOST=localhost \
+		-e JAIME_PORT=8080 \
 		brianwolf94/jaime-front:$(VERSION_FRONT)
 
 

@@ -1,4 +1,4 @@
-VERSION_FRONT := 0.9.0
+VERSION_FRONT := 0.10.0
 VERSION_JAIME := 0.12.0
 VERSION_AGENT := 0.11.0
 
@@ -45,6 +45,8 @@ front f:
 		--hostname=front \
 		-p 4200:80 \
 		--network=docker-net \
+		-e JAIME_HOST=jaime \
+		-e JAIME_PORT=80 \
 		brianwolf94/jaime-front:$(VERSION_FRONT)
 
 dozzle d:
@@ -52,7 +54,7 @@ dozzle d:
 		--name=dozzle \
 		--hostname=dozzle \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-p 8080:8080 \
+		-p 8081:8080 \
 		--network=docker-net \
 		amir20/dozzle
 
@@ -62,7 +64,7 @@ filebrowser fb:
 		--hostname=filebrowser \
 		-v shared:/data:rw \
 		-v shared:/config:rw \
-		-p 9090:8080 \
+		-p 8080:8080 \
 		--network=docker-net \
 		hurlenko/filebrowser
 
