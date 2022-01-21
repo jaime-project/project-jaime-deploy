@@ -1,4 +1,4 @@
-VERSION_FRONT := 0.10.0
+VERSION_FRONT := 0.11.0
 VERSION_JAIME := 0.12.0
 VERSION_AGENT := 0.11.0
 
@@ -20,7 +20,7 @@ agent1 a1:
 		--hostname=agent1 \
 		-v jaime-agent:/root/.jaime-agent \
 		-v shared:/data:rw \
-		-p 7000:80 \
+		-p 7001:80 \
 		--network=docker-net \
 		-e JAIME_URL=http://jaime:80 \
 		-e RUN_ON_DOCKER=true \
@@ -33,7 +33,7 @@ agent2 a2:
 		--hostname=agent2 \
 		-v jaime-agent:/root/.jaime-agent \
 		-v shared:/data:rw \
-		-p 7001:80 \
+		-p 7002:80 \
 		--network=docker-net \
 		-e JAIME_URL=http://jaime:80 \
 		-e RUN_ON_DOCKER=true \
@@ -77,3 +77,6 @@ network n:
 	docker network create docker-net
 	
 run r: n d j a1 a2 f fb
+
+clean c:
+	docker network rm docker-net
