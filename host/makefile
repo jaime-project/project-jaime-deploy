@@ -11,7 +11,7 @@ jaime j:
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
-		-e PYTHON_PORT=8080 \
+		-e PYTHON_PORT=5001 \
 		brianwolf94/jaime:$(VERSION_JAIME)
 
 
@@ -22,8 +22,8 @@ agent1 a1:
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
-		-e PYTHON_PORT=7000 \
-		-e JAIME_URL=http://localhost:8080 \
+		-e PYTHON_PORT=7001 \
+		-e JAIME_URL=http://localhost:5001 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 
@@ -35,8 +35,8 @@ agent2 a2:
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
-		-e PYTHON_PORT=7001 \
-		-e JAIME_URL=http://localhost:8080 \
+		-e PYTHON_PORT=7002 \
+		-e JAIME_URL=http://localhost:5001 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -49,8 +49,8 @@ agent3 a3:
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
-		-e PYTHON_PORT=7002 \
-		-e JAIME_URL=http://localhost:8080 \
+		-e PYTHON_PORT=7003 \
+		-e JAIME_URL=http://localhost:5001 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -63,8 +63,8 @@ agent4 a4:
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
-		-e PYTHON_PORT=7003 \
-		-e JAIME_URL=http://localhost:8080 \
+		-e PYTHON_PORT=7004 \
+		-e JAIME_URL=http://localhost:5001 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -77,8 +77,8 @@ agent5 a5:
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
-		-e PYTHON_PORT=7004 \
-		-e JAIME_URL=http://localhost:8080 \
+		-e PYTHON_PORT=7005 \
+		-e JAIME_URL=http://localhost:5001 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -91,8 +91,8 @@ agent6 a6:
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
-		-e PYTHON_PORT=7005 \
-		-e JAIME_URL=http://localhost:8080 \
+		-e PYTHON_PORT=7006 \
+		-e JAIME_URL=http://localhost:5001 \
 		-e RUN_ON_DOCKER=false \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 		
@@ -102,7 +102,7 @@ front f:
 		--name=front \
 		--network=host \
 		-e JAIME_HOST=localhost \
-		-e JAIME_PORT=8080 \
+		-e JAIME_PORT=5001 \
 		brianwolf94/jaime-front:$(VERSION_FRONT)
 
 
