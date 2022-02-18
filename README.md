@@ -1,29 +1,31 @@
 # :card_index_dividers: project-jaime-deploy
 
-> despliegue de ejemplo para Jaime
+> Despliegue de Jaime
 
-Se utiliza un makefile junto con docker porque docker-compose parece tener un bug con la red que hace que no ande
+Contiene los archivos necesarios para levantar Jaime en varios ambientes
 
 ![alt](img/logo.png)
 
 ## :gear: Requisitos
 
 * docker
-* makefile
+* docker-compose
 
 ## :tada: Uso
 
 ```bash
-# Corre el proyecto, levanta un Jaime con un agente
-make r
+# Corre el proyecto, levanta un Jaime con 2 agentes
+docker-compose up
 
-# Para el proyecto sin eliminar los volumes
-make k
+# Para bajar el proyecto
+docker-compose down
 ```
+
+Para los logs ingresar a [Jaime](http://localhost:4200)
 
 Para los logs ingresar al [dozzle](http://localhost:8080) local
 
-Para el filesystem ingresar al [filebrowser](http://localhost:9090) local
+Para el filesystem ingresar al [filebrowser](http://localhost:8081) local
 
 ## :books: Referencias
 

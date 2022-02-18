@@ -5,75 +5,78 @@ services:
     ####################################################
     # JAIME
     ####################################################
-    
+
     jaime:
-        image: brianwolf94/jaime:0.12.0
-        volumes: 
+        container_name: jaime
+        image: brianwolf94/jaime:1.0.0
+        volumes:
             - jaime:/root/.jaime
             - shared:/data:rw
         ports:
             - 5000:80
-        networks: 
+        networks:
             - jaime-net
-            
+
     agent1:
-        image: brianwolf94/jaime-agent:0.11.0
+        container_name: jaime-agent1
+        image: brianwolf94/jaime-agent:1.0.0
         environment:
             - JAIME_URL=http://jaime:80
-        volumes: 
-            - jaime-agent:/root/.jaime-agent
+        volumes:
             - shared:/data:rw
         ports:
             - 7001:80
-        networks: 
+        networks:
             - jaime-net
-            
+
     agent2:
-        image: brianwolf94/jaime-agent:0.11.0
+        container_name: jaime-agent2
+        image: brianwolf94/jaime-agent:1.0.0
         environment:
             - JAIME_URL=http://jaime:80
-        volumes: 
-            - jaime-agent:/root/.jaime-agent
+        volumes:
             - shared:/data:rw
         ports:
             - 7002:80
-        networks: 
+        networks:
             - jaime-net
-            
+
     front:
-        image: brianwolf94/jaime-front:0.11.0
+        container_name: jaime-front
+        image: brianwolf94/jaime-front:1.0.0
         environment:
             - JAIME_HOST=jaime
             - JAIME_PORT=80
         ports:
             - 4200:80
-        networks: 
+        networks:
             - jaime-net
-    
+
     ####################################################
     # TOOLS
     ####################################################
-    
+
     dozzle:
+        container_name: dozzle
         image: amir20/dozzle
-        volumes: 
+        volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         ports:
             - 8081:8080
-        networks: 
+        networks:
             - jaime-net
 
     filebrowser:
+        container_name: filebrowser
         image: hurlenko/filebrowser
-        volumes: 
+        volumes:
             - shared:/data:rw
             - shared:/config:rw
         ports:
             - 8080:8080
-        networks: 
-            - jaime-net            
-            
-            
+        networks:
+            - jaime-net
+
 volumes:
     jaime:
         external: false
@@ -82,7 +85,6 @@ volumes:
     shared:
         external: false
 
-        
 networks:
     jaime-net:
         name: jaime-net
