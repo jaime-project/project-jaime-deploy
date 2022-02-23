@@ -103,6 +103,7 @@ front f:
 		--network=host \
 		-e JAIME_HOST=localhost \
 		-e JAIME_PORT=5001 \
+		--network=host \
 		brianwolf94/jaime-front:$(VERSION_FRONT)
 
 
@@ -114,7 +115,18 @@ filebrowser fb:
 		--network=host \
 		hurlenko/filebrowser
 
+		
+network n:
+	docker network create docker-net
+		
+		
 kill k:
 	docker kill jaime agent1 agent2 agent3 agent4 agent5 agent6 front filebrowser
+	docker network rm docker-net
 	
-run r: j a1 a2 a3 a4 a5 a6 f fb 
+	
+run r: n j a1 a2 a3 a4 a5 a6 f fb 
+
+
+clean c:
+	docker network rm docker-net
