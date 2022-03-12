@@ -40,8 +40,7 @@ front f:
 		--name=front \
 		--hostname=front \
 		-p 4200:80 \
-		-e JAIME_HOST=jaime \
-		-e JAIME_PORT=80 \
+		-e JAIME_URL=http://localhost:5000 \
 		--network=jaime-net \
 		brianwolf94/jaime-front:$(VERSION_FRONT)
 
