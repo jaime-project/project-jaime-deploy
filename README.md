@@ -9,19 +9,18 @@ Contiene los archivos necesarios para levantar Jaime en varios ambientes
 ## :gear: Requisitos
 
 * docker
-* docker-compose
 
 ## :tada: Uso
 
 ```bash
 # Corre el proyecto, levanta un Jaime con 2 agentes
-docker-compose up
+make r
 
 # Para bajar el proyecto
-docker-compose down
+make k
 ```
 
-Para los logs ingresar a [Jaime](http://localhost:4200)
+Para ingresar a [Jaime](http://localhost:4200)
 
 Para los logs ingresar al [dozzle](http://localhost:8080) local
 
