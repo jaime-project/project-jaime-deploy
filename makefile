@@ -1,6 +1,6 @@
-VERSION_FRONT := 1.0.0
-VERSION_JAIME := 1.0.0
-VERSION_AGENT := 1.0.0
+VERSION_FRONT := 1.1.0
+VERSION_JAIME := 1.1.0
+VERSION_AGENT := 1.1.0
 
 
 jaime j:
@@ -9,7 +9,7 @@ jaime j:
 		--hostname=jaime \
 		-v jaime:/root/.jaime \
 		-v shared:/data:rw \
-		-p 5000:80 \
+		-p 5000:5000 \
 		--network=jaime-net \
 		brianwolf94/jaime:$(VERSION_JAIME)
 
@@ -19,8 +19,8 @@ agent1 a1:
 		--name=agent1 \
 		--hostname=agent1 \
 		-v shared:/data:rw \
-		-p 7001:80 \
-		-e JAIME_URL=http://jaime:80 \
+		-p 7001:7001 \
+		-e JAIME_URL=http://jaime:5000 \
 		--network=jaime-net \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 
@@ -30,8 +30,8 @@ agent2 a2:
 		--name=agent2 \
 		--hostname=agent2 \
 		-v shared:/data:rw \
-		-p 7002:80 \
-		-e JAIME_URL=http://jaime:80 \
+		-p 7002:7001 \
+		-e JAIME_URL=http://jaime:5000 \
 		--network=jaime-net \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
 
