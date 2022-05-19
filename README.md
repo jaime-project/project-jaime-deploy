@@ -13,6 +13,8 @@ Contiene los archivos necesarios para levantar Jaime en varios ambientes
 ## :tada: Uso
 
 ```bash
+cd docker
+
 # Corre el proyecto, levanta un Jaime con 2 agentes
 make r
 

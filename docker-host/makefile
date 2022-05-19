@@ -1,6 +1,6 @@
-VERSION_FRONT := 1.0.0
-VERSION_JAIME := 1.0.0
-VERSION_AGENT := 1.0.0
+VERSION_FRONT := 1.1.1
+VERSION_JAIME := 1.1.1
+VERSION_AGENT := 1.1.1
 
 
 jaime j:
@@ -43,7 +43,7 @@ front f:
 	docker run --rm -d \
 		--name=front \
 		--network=host \
-		-e JAIME_URL=http://localhost:5000 \
+		-e JAIME_URL=http://0.0.0.0:5000 \
 		brianwolf94/jaime-front:$(VERSION_FRONT)
 
 
