@@ -1,6 +1,6 @@
-VERSION_FRONT := 1.1.1
-VERSION_JAIME := 1.1.1
-VERSION_AGENT := 1.1.1
+VERSION_FRONT := 1.3.0
+VERSION_JAIME := 1.3.0
+VERSION_AGENT := 1.3.0
 
 
 jaime j:
@@ -22,7 +22,7 @@ agent1 a1:
 		-p 7001:7001 \
 		-e JAIME_URL=http://jaime:5000 \
 		--network=jaime-net \
-		brianwolf94/jaime-agent:$(VERSION_AGENT)
+		brianwolf94/jaime-agent-kubernetes:$(VERSION_AGENT)
 
 
 agent2 a2:
@@ -31,6 +31,17 @@ agent2 a2:
 		--hostname=agent2 \
 		-v shared:/data:rw \
 		-p 7002:7001 \
+		-e JAIME_URL=http://jaime:5000 \
+		--network=jaime-net \
+		brianwolf94/jaime-agent-openshift:$(VERSION_AGENT)
+		
+		
+agent3 a3:
+	docker run --rm -d \
+		--name=agent3 \
+		--hostname=agent3 \
+		-v shared:/data:rw \
+		-p 7003:7001 \
 		-e JAIME_URL=http://jaime:5000 \
 		--network=jaime-net \
 		brianwolf94/jaime-agent:$(VERSION_AGENT)
@@ -65,7 +76,7 @@ filebrowser fb:
 
 		
 kill k:
-	docker kill jaime agent1 agent2 front dozzle filebrowser
+	docker kill jaime agent1 agent2 agent3 front dozzle filebrowser
 	docker network rm jaime-net
 
 	
@@ -73,7 +84,7 @@ network n:
 	docker network create jaime-net
 	
 	
-run r: n j a1 a2 f fb d
+run r: n j a1 a2 a3 f fb d
 
 
 clean c:
