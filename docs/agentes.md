@@ -25,7 +25,7 @@ resultado = tools.sh('echo "hola mundo redondo"')
 | get_params        | -                                                                                             | Dict[str, object]     | Devuelve los parametros cargados al work en el yaml       |
 | login_openshift   | **cluster_name**: str                                                                         | bool                  | Logea en openshift y devuelve true si se pudo loguear     |
 | login_kubernetes  | **cluster_name**: str                                                                         | bool                  | Logea en kubernetes y devuelve true si se pudo loguear    |
-| new_jaime_work    | **repo_name**: str, **module_name**: str, **agent_type**: str, **params**: Dict[str, object]  | -                     | Ejecuta una tarea en Jaime, para pasarle el nombre de la tarea hay que agregarle al *params* un atributo llamado *name*   |
+| new_jaime_work    | **repo_name**: str, **module_name**: str, **agent_type**: str, **params**: Dict[str, object]  | str                   | Ejecuta una tarea en Jaime, para pasarle el nombre de la tarea hay que agregarle al *params* un atributo llamado *name*, devuelve el id del work creado |
 
 ---
 
@@ -45,7 +45,7 @@ resultado = tools.sh(cmd:'ls', echo=False)
 parametros = tools.get_params()
 variable = parametros['algo']['variable']
 
-new_jaime_work('repositorio', 'modulo_prueba', 'OPENSHIFT', {
+id_work = new_jaime_work('repositorio', 'modulo_prueba', 'OPENSHIFT', {
     'name': 'soy un work muy feliz',
     'algo': {
         'variable': 'hola mundo redondo'
