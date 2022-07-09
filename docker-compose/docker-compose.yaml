@@ -27,13 +27,23 @@ services:
 
     agent2:
         container_name: jaime-agent2
-        image: brianwolf94/jaime-agent:1.3.0
+        image: brianwolf94/jaime-agent-kubernetes:1.3.0
         environment:
             - JAIME_URL=http://jaime:5000
         volumes:
             - shared:/data
         ports:
             - 7002:7001
+
+    agent3:
+        container_name: jaime-agent3
+        image: brianwolf94/jaime-agent-openshift:1.3.0
+        environment:
+            - JAIME_URL=http://jaime:5000
+        volumes:
+            - shared:/data
+        ports:
+            - 7003:7001
 
     front:
         container_name: jaime-front
