@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+
+    ####################################################
+    # JAIME
+    ####################################################
+
+    jaime:
+        container_name: jaime
+        image: brianwolf94/jaime:1.5.0
+        volumes:
+            - jaime:/root/.jaime
+            - shared:/data
+        ports:
+            - 5000:5000
+
+    agent1:
+        container_name: jaime-agent1
+        image: brianwolf94/jaime-agent:1.5.0
+        environment:
+            - JAIME_URL=http://jaime:5000
+            - PYTHON_PORT=9001
+        volumes:
+            - shared:/data
+        ports:
+            - 9001:9001
+
+    agent2:
+        container_name: jaime-agent2
+        image: brianwolf94/jaime-agent-kubernetes:1.5.0
+        environment:
+            - JAIME_URL=http://jaime:5000
+            - PYTHON_PORT=9002
+        volumes:
+            - shared:/data
+        ports:
+            - 9002:9002
+
+    agent3:
+        container_name: jaime-agent3
+        image: brianwolf94/jaime-agent-openshift:1.5.0
+        environment:
+            - JAIME_URL=http://jaime:5000
+            - PYTHON_PORT=9003
+        volumes:
+            - shared:/data
+        ports:
+            - 9003:9003
+
+    front:
+        container_name: jaime-front
+        image: brianwolf94/jaime-front:1.5.0
+        environment:
+            - JAIME_URL=http://0.0.0.0:5000
+        ports:
+            - 4200:80
+
+    ####################################################
+    # TOOLS
+    ####################################################
+
+    filebrowser:
+        container_name: filebrowser
+        image: hurlenko/filebrowser
+        volumes:
+            - shared:/data:rw
+            - shared:/config:rw
+        ports:
+            - 8080:8080
+
+volumes:
+    jaime:
+        external: false
+    shared:
+        external: false
+
+networks:
+  default:
+    external:
+      name: jaime-net
