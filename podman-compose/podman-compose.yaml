@@ -76,6 +76,4 @@ volumes:
         external: false
 
 networks:
-  default:
-    external:
-      name: jaime-net
+    jaime-net:
