@@ -8,7 +8,7 @@ services:
 
     jaime:
         container_name: jaime
-        image: brianwolf94/jaime:1.4.0
+        image: brianwolf94/jaime:1.5.0
         volumes:
             - jaime:/root/.jaime
             - shared:/data
@@ -17,7 +17,7 @@ services:
 
     agent1:
         container_name: jaime-agent1
-        image: brianwolf94/jaime-agent:1.4.0
+        image: brianwolf94/jaime-agent:1.5.0
         environment:
             - JAIME_URL=http://jaime:5000
         volumes:
@@ -27,7 +27,7 @@ services:
 
     agent2:
         container_name: jaime-agent2
-        image: brianwolf94/jaime-agent-kubernetes:1.4.0
+        image: brianwolf94/jaime-agent-kubernetes:1.5.0
         environment:
             - JAIME_URL=http://jaime:5000
         volumes:
@@ -37,7 +37,7 @@ services:
 
     agent3:
         container_name: jaime-agent3
-        image: brianwolf94/jaime-agent-openshift:1.4.0
+        image: brianwolf94/jaime-agent-openshift:1.5.0
         environment:
             - JAIME_URL=http://jaime:5000
         volumes:
@@ -47,7 +47,7 @@ services:
 
     front:
         container_name: jaime-front
-        image: brianwolf94/jaime-front:1.4.0
+        image: brianwolf94/jaime-front:1.5.0
         environment:
             - JAIME_URL=http://0.0.0.0:5000
         ports:
@@ -80,3 +80,7 @@ volumes:
     shared:
         external: false
 
+networks:
+  default:
+    external:
+      name: jaime-net

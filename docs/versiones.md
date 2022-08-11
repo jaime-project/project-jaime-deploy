@@ -15,7 +15,7 @@ Registro de cambios en versiones de Jaime
 * **1.3.0**:
   * Se agrega funcion de carga de dependencias de python a los agentes
   * Se permite generar imagenes y tipos de agentes custom
-* **1.4.0**:
+* **1.5.0**:
   * Se agrega funcion de carga de objetos desde yaml
   * Se agrega funcion para backup de objetos
   * Se reduce el tiempo de carga del contenido de las paginas de 1.5 a 1 segundo
@@ -31,7 +31,7 @@ Registro de cambios en versiones de Jaime
 * **1.3.0**:
   * Se agrega funcion de carga de dependencias de python a los agentes
   * Se permite generar imagenes y tipos de agentes custom
-* **1.4.0**:
+* **1.5.0**:
   * Se agrega funcion de carga de objetos desde yaml
   * Se agrega funcion para backup de objetos
 
@@ -46,7 +46,7 @@ Registro de cambios en versiones de Jaime
 * **1.3.0**:
   * Se agrega funcion de carga de dependencias de python a los agentes
   * Se permite generar imagenes y tipos de agentes custom
-* **1.4.0**:
+* **1.5.0**:
   * Se agrega funcion de carga de objetos desde yaml
   * Se agrega funcion para backup de objetos
   * Se agrega la generacion del nombre en el metodo new_jaime_work de las tools
