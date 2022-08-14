@@ -54,6 +54,7 @@ services:
             - shared:/data
         ports:
             - 7004:7001
+            - 9091:9091
 
     front:
         container_name: jaime-front
