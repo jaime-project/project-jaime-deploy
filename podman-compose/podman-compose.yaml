@@ -16,48 +16,48 @@ services:
             - 5000:5000
 
     agent1:
-        container_name: jaime-agent1
+        container_name: agent1
+        hostname: agent1
         image: brianwolf94/jaime-agent:1.6.0
         environment:
             - JAIME_URL=http://jaime:5000
-            - PYTHON_PORT=9001
         volumes:
             - shared:/data
         ports:
-            - 9001:9001
+            - 7001:7001
 
     agent2:
-        container_name: jaime-agent2
+        container_name: agent2
+        hostname: agent2
         image: brianwolf94/jaime-agent-kubernetes:1.6.0
         environment:
             - JAIME_URL=http://jaime:5000
-            - PYTHON_PORT=9002
         volumes:
             - shared:/data
         ports:
-            - 9002:9002
+            - 7002:7001
 
     agent3:
-        container_name: jaime-agent3
+        container_name: agent3
+        hostname: agent3
         image: brianwolf94/jaime-agent-openshift:1.6.0
         environment:
             - JAIME_URL=http://jaime:5000
-            - PYTHON_PORT=9003
         volumes:
             - shared:/data
         ports:
-            - 9003:9003
+            - 7003:7001
 
     agent4:
-        container_name: jaime-agent4
+        container_name: agent4
+        hostname: agent4
         image: brianwolf94/jaime-agent-pushgateway:1.6.0
         environment:
             - JAIME_URL=http://jaime:5000
-            - PYTHON_PORT=9004
         volumes:
             - shared:/data
         ports:
-            - 9004:9004
+            - 7004:7001
             - 9091:9091
 
     front:
@@ -74,6 +74,7 @@ services:
 
     filebrowser:
         container_name: filebrowser
+        hostname: filebrowser
         image: hurlenko/filebrowser
         volumes:
             - shared:/data:rw
