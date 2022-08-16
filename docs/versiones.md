@@ -19,7 +19,7 @@ Registro de cambios en versiones de Jaime
   * Se agrega funcion de carga de objetos desde yaml
   * Se agrega funcion para backup de objetos
   * Se reduce el tiempo de carga del contenido de las paginas de 1.5 a 1 segundo
-* **1.5.0**:
+* **1.6.0**:
   * Se agrega rueda de carga al instalar dependencias con pip
   * Se corrige bug del 404 al recargar la pagina
   * Se agrega opciones para ver los logs de jaime y sus agentes
@@ -38,7 +38,7 @@ Registro de cambios en versiones de Jaime
 * **1.4.0**:
   * Se agrega funcion de carga de objetos desde yaml
   * Se agrega funcion para backup de objetos
-* **1.5.0**:
+* **1.6.0**:
   * Se agrega opciones para ver los logs de jaime y sus agentes
   * Se corrige bug que no se guarda las dependencias de pip al crear el backup
 
@@ -57,7 +57,7 @@ Registro de cambios en versiones de Jaime
   * Se agrega funcion de carga de objetos desde yaml
   * Se agrega funcion para backup de objetos
   * Se agrega la generacion del nombre en el metodo new_jaime_work de las tools
-* **1.5.0**:
+* **1.6.0**:
   * Se agrega opciones para ver los logs
 
 ---

@@ -8,7 +8,7 @@ services:
 
     jaime:
         container_name: jaime
-        image: brianwolf94/jaime:1.5.0
+        image: brianwolf94/jaime:1.6.0
         volumes:
             - jaime:/root/.jaime
             - shared:/data
@@ -17,7 +17,7 @@ services:
 
     agent1:
         container_name: jaime-agent1
-        image: brianwolf94/jaime-agent:1.5.0
+        image: brianwolf94/jaime-agent:1.6.0
         environment:
             - JAIME_URL=http://jaime:5000
             - PYTHON_PORT=9001
@@ -28,7 +28,7 @@ services:
 
     agent2:
         container_name: jaime-agent2
-        image: brianwolf94/jaime-agent-kubernetes:1.5.0
+        image: brianwolf94/jaime-agent-kubernetes:1.6.0
         environment:
             - JAIME_URL=http://jaime:5000
             - PYTHON_PORT=9002
@@ -39,7 +39,7 @@ services:
 
     agent3:
         container_name: jaime-agent3
-        image: brianwolf94/jaime-agent-openshift:1.5.0
+        image: brianwolf94/jaime-agent-openshift:1.6.0
         environment:
             - JAIME_URL=http://jaime:5000
             - PYTHON_PORT=9003
@@ -48,9 +48,21 @@ services:
         ports:
             - 9003:9003
 
+    agent4:
+        container_name: jaime-agent4
+        image: brianwolf94/jaime-agent-pushgateway:1.6.0
+        environment:
+            - JAIME_URL=http://jaime:5000
+            - PYTHON_PORT=9004
+        volumes:
+            - shared:/data
+        ports:
+            - 9004:9004
+            - 9091:9091
+
     front:
         container_name: jaime-front
-        image: brianwolf94/jaime-front:1.5.0
+        image: brianwolf94/jaime-front:1.6.0
         environment:
             - JAIME_URL=http://0.0.0.0:5000
         ports:
@@ -76,4 +88,7 @@ volumes:
         external: false
 
 networks:
-    jaime-net:
+    default:
+        external:
+            name: jaime-net
+
