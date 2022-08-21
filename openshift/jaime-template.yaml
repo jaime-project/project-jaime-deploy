@@ -332,7 +332,6 @@ parameters:
     e.g.: <application-name>.<project>.<default-domain-suffix>'
   displayName: Custom http Route Hostname
   name: BACK_HOSTNAME_HTTP
-  required: true
 - description: 'Custom hostname for frontend http service route. Leave blank for default hostname,
     e.g.: <application-name>.<project>.<default-domain-suffix>'
   displayName: Custom frontend http Route Hostname
