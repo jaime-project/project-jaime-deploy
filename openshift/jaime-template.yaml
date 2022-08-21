@@ -13,6 +13,11 @@ metadata:
     version: 1.7.0
   name: jaime17
 objects:
+
+####################################################
+# SERVICES
+####################################################
+
 - apiVersion: v1
   kind: Service
   metadata:
@@ -28,6 +33,7 @@ objects:
       port: 5000
       name: jaimebe
       targetPort: 5000
+
 - apiVersion: v1
   kind: Service
   metadata:
@@ -45,6 +51,7 @@ objects:
         port: 80
         name: front
         targetPort: 8080
+
 - apiVersion: v1
   kind: Service
   metadata:
@@ -62,6 +69,7 @@ objects:
       name: pushgateway
     selector:
       app: ${APPLICATION_NAME}-agent-pushgateway     
+
 - apiVersion: v1
   kind: Service
   metadata:
@@ -75,6 +83,7 @@ objects:
       name: agent
     selector:
       app: ${APPLICATION_NAME}-agent-base
+
 - apiVersion: v1
   kind: Service
   metadata:
@@ -88,6 +97,7 @@ objects:
       name: agent
     selector:
       app: ${APPLICATION_NAME}-agent-kubernetes
+
 - apiVersion: v1
   kind: Service
   metadata:
@@ -101,6 +111,11 @@ objects:
       name: agent
     selector:
       app:  ${APPLICATION_NAME}-agent-openshift
+
+####################################################
+# ROUTES      
+####################################################
+
 - kind: Route
   apiVersion: route.openshift.io/v1
   id: ${APPLICATION_NAME}-front-http
@@ -115,6 +130,7 @@ objects:
     host: ${FRONT_HOSTNAME_HTTP}
     to:
       name: ${APPLICATION_NAME}-front
+
 - kind: Route
   apiVersion: route.openshift.io/v1
   id: ${APPLICATION_NAME}-http
@@ -129,13 +145,18 @@ objects:
     host: ${BACK_HOSTNAME_HTTP}
     to:
       name: ${APPLICATION_NAME}
+
+####################################################
+# DEPLOYMENTS
+####################################################
+
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
     labels:
       application: ${APPLICATION_NAME}
       component: server
-    name: ${APPLICATION_NAME}  
+    name: ${APPLICATION_NAME}
   spec:
     selector:
       matchLabels:
@@ -148,13 +169,26 @@ objects:
         labels:
           app: ${APPLICATION_NAME}
       spec:
+        volumes:
+          - name: ${APPLICATION_NAME}-pvc
+            persistentVolumeClaim:
+              claimName: ${APPLICATION_NAME}-pvc
+          - name: ${APPLICATION_NAME}-agents-pvc
+            persistentVolumeClaim:
+              claimName: ${APPLICATION_NAME}-agents-pvc
         containers:
           - name: ${APPLICATION_NAME}
             image: 'ghcr.io/jaime-project/jaime:${JAIME_VERSION}'
             ports:
               - containerPort: 5000
                 protocol: TCP
-        restartPolicy: Always        
+            volumeMounts:
+              - name: ${APPLICATION_NAME}-pvc
+                mountPath: /home/jaime/.jaime
+              - name: ${APPLICATION_NAME}-agents-pvc
+                mountPath: /data
+        restartPolicy: Always  
+
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -184,6 +218,11 @@ objects:
               - containerPort: 8080
                 protocol: TCP
         restartPolicy: Always 
+
+####################################################
+# STATEFULSETS      
+####################################################
+
 - kind: StatefulSet
   apiVersion: apps/v1
   metadata:
@@ -201,6 +240,10 @@ objects:
         labels:
           app: ${APPLICATION_NAME}-agent-openshift
       spec:
+        volumes:
+          - name: ${APPLICATION_NAME}-agents-pvc
+            persistentVolumeClaim:
+              claimName: ${APPLICATION_NAME}-agents-pvc
         containers:
           - name: ${APPLICATION_NAME}-agent-openshift
             image: 'ghcr.io/jaime-project/jaime-agent-openshift:${JAIME_VERSION}'
@@ -212,11 +255,15 @@ objects:
               - name: JAIME_URL
                 value: ${JAIME_INTERNAL_URL}
             imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - name: ${APPLICATION_NAME}-agents-pvc
+                mountPath: /data
         restartPolicy: Always
     serviceName: ${APPLICATION_NAME}-agent-openshift
     podManagementPolicy: OrderedReady
     updateStrategy:
       type: RollingUpdate
+
 - kind: StatefulSet
   apiVersion: apps/v1
   metadata:
@@ -234,6 +281,10 @@ objects:
         labels:
           app: ${APPLICATION_NAME}-agent-kubernetes
       spec:
+        volumes:
+          - name: ${APPLICATION_NAME}-agents-pvc
+            persistentVolumeClaim:
+              claimName: ${APPLICATION_NAME}-agents-pvc
         containers:
           - name: ${APPLICATION_NAME}-agent-kubernetes
             image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:${JAIME_VERSION}'
@@ -245,11 +296,15 @@ objects:
               - name: JAIME_URL
                 value: ${JAIME_INTERNAL_URL}
             imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - name: ${APPLICATION_NAME}-agents-pvc
+                mountPath: /data
         restartPolicy: Always
     serviceName: ${APPLICATION_NAME}-agent-kubernetes
     podManagementPolicy: OrderedReady
     updateStrategy:
       type: RollingUpdate
+
 - kind: StatefulSet
   apiVersion: apps/v1
   metadata:
@@ -267,6 +322,10 @@ objects:
         labels:
           app: ${APPLICATION_NAME}-agent-base
       spec:
+        volumes:
+          - name: ${APPLICATION_NAME}-agents-pvc
+            persistentVolumeClaim:
+              claimName: ${APPLICATION_NAME}-agents-pvc
         containers:
           - name: ${APPLICATION_NAME}-agent-base
             image: 'ghcr.io/jaime-project/jaime-agent:${JAIME_VERSION}'
@@ -278,11 +337,15 @@ objects:
               - name: JAIME_URL
                 value: ${JAIME_INTERNAL_URL}
             imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - name: ${APPLICATION_NAME}-agents-pvc
+                mountPath: /data
         restartPolicy: Always
     serviceName: ${APPLICATION_NAME}-agent-base
     podManagementPolicy: OrderedReady
     updateStrategy:
       type: RollingUpdate
+
 - kind: StatefulSet
   apiVersion: apps/v1
   metadata:
@@ -300,6 +363,10 @@ objects:
         labels:
           app: ${APPLICATION_NAME}-agent-pushgateway
       spec:
+        volumes:
+          - name: ${APPLICATION_NAME}-agents-pvc
+            persistentVolumeClaim:
+              claimName: ${APPLICATION_NAME}-agents-pvc
         containers:
           - name: ${APPLICATION_NAME}-agent-base
             image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:${JAIME_VERSION}'
@@ -314,30 +381,91 @@ objects:
               - name: JAIME_URL
                 value: ${JAIME_INTERNAL_URL}
             imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - name: ${APPLICATION_NAME}-agents-pvc
+                mountPath: /data
         restartPolicy: Always
     serviceName: ${APPLICATION_NAME}-agent-pushgateway
     podManagementPolicy: OrderedReady
     updateStrategy:
       type: RollingUpdate
+      
+####################################################
+# PVCs      
+####################################################
+
+- kind: PersistentVolumeClaim
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}-pvc
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    selector:
+      matchLabels:
+        app: ${APPLICATION_NAME}
+    resources:
+      requests:
+        storage: ${JAIME_VOLUME_SIZE}
+    storageClassName: ocs-storagecluster-cephfs
+    volumeMode: Filesystem
+
+- kind: PersistentVolumeClaim
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}-agents-pvc
+  spec:
+    accessModes:
+      - ReadWriteMany
+    selector:
+      matchLabels:
+        app: ${APPLICATION_NAME}
+    resources:
+      requests:
+        storage: ${AGENTS_VOLUME_SIZE}
+    storageClassName: ocs-storagecluster-cephfs
+    volumeMode: Filesystem
+
+####################################################
+# PARAMS      
+####################################################
+
 parameters:
+
 - description: The name for the application.
   displayName: Application Name
   name: APPLICATION_NAME
   required: true
   value: jaime
+
 - description: 'Version of Jaime to download images'
   name: JAIME_VERSION
   required: true  
+
 - description: 'Custom hostname for http service route. Leave blank for default hostname,
     e.g.: <application-name>.<project>.<default-domain-suffix>'
   displayName: Custom http Route Hostname
   name: BACK_HOSTNAME_HTTP
+
 - description: 'Custom hostname for frontend http service route. Leave blank for default hostname,
     e.g.: <application-name>.<project>.<default-domain-suffix>'
   displayName: Custom frontend http Route Hostname
   name: FRONT_HOSTNAME_HTTP
+
 - description: 'Jaime internal URL'
   displayName: Jaime internal URL
   name: JAIME_INTERNAL_URL  
   required: true
   value: http://jaime:5000  
+
+- description: 'Jaime volume size'
+  displayName: Jaime volume size
+  name: JAIME_VOLUME_SIZE
+  required: true
+  value: 2Gi
+
+- description: 'Agents volume size'
+  displayName: Agents volume size
+  name: AGENTS_VOLUME_SIZE
+  required: true
+  value: 8Gi
