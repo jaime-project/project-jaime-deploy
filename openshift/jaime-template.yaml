@@ -22,7 +22,7 @@ objects:
       component: server
   spec:
     selector:
-    app: ${APPLICATION_NAME}
+      app: ${APPLICATION_NAME}
     ports:
     - protocol: TCP
       port: 5000
