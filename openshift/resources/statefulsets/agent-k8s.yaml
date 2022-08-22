@@ -1,0 +1,40 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: jaime-agent-kubernetes
+    component: agent
+  name: jaime-agent-kubernetes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaime-agent-kubernetes
+  template:
+    metadata:
+      labels:
+        app: jaime-agent-kubernetes
+    spec:
+      volumes:
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime-agent-kubernetes
+          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:1.7.0'
+          ports:
+            - name: agent
+              containerPort: 7001
+              protocol: TCP
+          env:
+            - name: JAIME_URL
+              value: jaime:5000
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: jaime-agents-pvc
+              mountPath: /data
+      restartPolicy: Always
+  serviceName: jaime-agent-kubernetes
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
