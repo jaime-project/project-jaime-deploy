@@ -1,5 +1,4 @@
 jaime j:
-
 	oc new-project jaime
 	oc apply -n jaime -f jaime-template.yaml
 	oc process jaime -n jaime \
@@ -9,6 +8,7 @@ jaime j:
 		-p JAIME_VOLUME_SIZE=1Gi \
 		-p AGENTS_VOLUME_SIZE=5Gi \
 		| oc create -n jaime -f -
+
 
 delete d:
 	oc delete project jaime
