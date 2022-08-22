@@ -1,0 +1,13 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+id: jaime-front-http
+metadata:
+  annotations:
+    description: Route for frontend's http service.
+  labels:
+    application: jaime
+    component: frontend
+  name: jaime-front
+spec:
+  to:
+    name: jaime-front
