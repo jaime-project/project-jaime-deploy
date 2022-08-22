@@ -2,7 +2,7 @@ apiVersion: template.openshift.io/v1
 kind: Template
 labels:
   jaime: 1.7.0
-  template: jaime17
+  template: jaime
 message: 'Una desc'
 metadata:
   annotations:
@@ -11,7 +11,7 @@ metadata:
     openshift.io/display-name: Jaime  Project by Brain Lobo and Pablo Castelo
     tags: jaime,openshift,automation
     version: 1.7.0
-  name: jaime17
+  name: jaime
 objects:
 
 ####################################################
@@ -73,7 +73,7 @@ objects:
 - apiVersion: v1
   kind: Service
   metadata:
-    name: ${APPLICATION_NAME}-agent--base
+    name: ${APPLICATION_NAME}-agent-base
     labels:
       application: ${APPLICATION_NAME}-agent-base
       component: agent 
@@ -401,9 +401,6 @@ objects:
   spec:
     accessModes:
       - ReadWriteOnce
-    selector:
-      matchLabels:
-        app: ${APPLICATION_NAME}
     resources:
       requests:
         storage: ${JAIME_VOLUME_SIZE}
@@ -417,9 +414,6 @@ objects:
   spec:
     accessModes:
       - ReadWriteMany
-    selector:
-      matchLabels:
-        app: ${APPLICATION_NAME}
     resources:
       requests:
         storage: ${AGENTS_VOLUME_SIZE}
