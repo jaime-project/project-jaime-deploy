@@ -127,7 +127,6 @@ objects:
       component: frontend
     name: ${APPLICATION_NAME}-front
   spec:
-    host: ${FRONT_HOSTNAME_HTTP}
     to:
       name: ${APPLICATION_NAME}-front
 
