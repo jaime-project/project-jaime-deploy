@@ -145,6 +145,22 @@ objects:
     host: ${BACK_HOSTNAME_HTTP}
     to:
       name: ${APPLICATION_NAME}
+      
+- kind: Route
+  apiVersion: route.openshift.io/v1
+  id: ${APPLICATION_NAME}-pushgateway
+  metadata:
+    annotations:
+      description: Route for pushgateway server.
+    labels:
+      application: ${APPLICATION_NAME}-pushgateway
+      component: server
+    name: ${APPLICATION_NAME}-pushgateway
+  spec:
+    to:
+      name: ${APPLICATION_NAME}-agent-pushgateway
+    port:
+      targetPort: pushgateway  
 
 ####################################################
 # DEPLOYMENTS
