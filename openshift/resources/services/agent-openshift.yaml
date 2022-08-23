@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name:  jaime-agent-openshift
+  labels:
+    application: jaime-agent-openshift
+    component: agent
+spec:
+  ports:
+    - port: 7001
+      name: agent
+  selector:
+    app:  jaime-agent-openshift

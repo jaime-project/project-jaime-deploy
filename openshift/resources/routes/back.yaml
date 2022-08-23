@@ -1,0 +1,13 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+id: jaime-http
+metadata:
+  annotations:
+    description: Route for application's http service.
+  labels:
+    application: jaime
+    component: server
+  name: jaime
+spec:
+  to:
+    name: jaime
