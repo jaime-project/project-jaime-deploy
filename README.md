@@ -16,9 +16,4 @@ Contiene los archivos necesarios para levantar Jaime en varios ambientes
 
 ---
 
-## :grin: Autor
 
-> **Brian Lobo**
-
-* Github: [brianwolf](https://github.com/brianwolf)
-* Docker Hub:  [brianwolf94](https://hub.docker.com/u/brianwolf94)
