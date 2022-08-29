@@ -7,7 +7,7 @@ jaime j:
 	podman run --rm -d \
 		--name=jaime \
 		--hostname=localhost \
-		-v jaime:/root/.jaime \
+		-v jaime:/home/jaime/.jaime \
 		-v shared:/data:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \

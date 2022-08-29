@@ -10,7 +10,7 @@ services:
         container_name: jaime
         image: ghcr.io/jaime-project/jaime:1.7.0
         volumes:
-            - jaime:/root/.jaime
+            - jaime:/home/jaime/.jaime
             - shared:/data
         ports:
             - 5000:5000
