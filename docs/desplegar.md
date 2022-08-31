@@ -1,18 +1,18 @@
 # :tada: Desplegar Jaime
 
-Se explica como levantar Jaime en varios ambientes
+> Se explica como levantar Jaime en varios ambientes
 
 ---
 
-## Docker
+## Podman / podman-host
 
-### Requisitos docker
+### Requisitos podman
 
-* docker v20
+* podman 4.1.1
 
-### Uso docker
+### Uso podman
 
-Dentro de la carpeta de docker
+Dentro de la carpeta de podman
 
 ```sh
 make r
@@ -30,25 +30,41 @@ En caso de que tenga algun error
 make c
 ```
 
-## Docker Compose
+## Podman-compose
 
-### Requisitos docker-compose
+### Requisitos podman-compose
 
-* docker v20
-* docker-compose v1.29
+* podman 4.1.1
+* podman-compose 1.0.3
 
-### Uso docker-compose
+### Uso podman-compose
 
-Dentro de la carpeta de docker-compose
+Dentro de la carpeta de podman-compose
 
 ```sh
-docker-compose up
+podman-compose up
 ```
 
 Para bajarlo
 
 ```sh
-docker-compose down
+podman-compose down
+```
+
+## Openshift
+
+### Requisitos Openshift
+
+* Openshift 4
+
+### Uso openshift
+
+Previamente se debe estar logueado al cluster con el comando `oc login`
+
+Dentro de la carpeta openshift
+
+```sh
+make j
 ```
 
 ---

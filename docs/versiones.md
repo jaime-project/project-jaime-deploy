@@ -23,6 +23,10 @@ Registro de cambios en versiones de Jaime
   * Se agrega rueda de carga al instalar dependencias con pip
   * Se corrige bug del 404 al recargar la pagina
   * Se agrega opciones para ver los logs de jaime y sus agentes
+* **1.7.0**:
+  * Se corrigen bugs
+  * Se da soporte a Openshift
+  * Se agrega funcion de crons
 
 ## Back-end
 
@@ -41,6 +45,10 @@ Registro de cambios en versiones de Jaime
 * **1.6.0**:
   * Se agrega opciones para ver los logs de jaime y sus agentes
   * Se corrige bug que no se guarda las dependencias de pip al crear el backup
+* **1.7.0**:
+  * Se corrigen bugs
+  * Se da soporte a Openshift
+  * Se agrega funcion de crons
 
 ## Agentes
 
@@ -59,7 +67,10 @@ Registro de cambios en versiones de Jaime
   * Se agrega la generacion del nombre en el metodo new_jaime_work de las tools
 * **1.6.0**:
   * Se agrega opciones para ver los logs
-
+* **1.7.0**:
+  * Se corrigen bugs
+  * Se da soporte a Openshift
+  * Se agrega funcion de crons
 ---
 
 ## :leftwards_arrow_with_hook: Navegar
