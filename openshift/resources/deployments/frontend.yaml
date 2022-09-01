@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: jaime-front
-          image: 'ghcr.io/jaime-project/jaime-front:1.7.4'
+          image: 'ghcr.io/jaime-project/jaime-front:1.7.6'
           env:
             - name: JAIME_URL
               value: http://ChangeMe/
