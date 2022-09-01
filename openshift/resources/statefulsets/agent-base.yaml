@@ -21,7 +21,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-base
-          image: 'ghcr.io/jaime-project/jaime-agent:1.7.0'
+          image: 'ghcr.io/jaime-project/jaime-agent:1.7.1'
           ports:
             - name: agent
               containerPort: 7001
