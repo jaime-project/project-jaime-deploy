@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 labels:
-  jaime: 1.7.1
+  jaime: 1.7.4
   template: jaime
 message: 'Una desc'
 metadata:
@@ -10,7 +10,7 @@ metadata:
     iconClass: icon-sso
     openshift.io/display-name: Jaime  Project by Braian Lobo and Pablo Castelo
     tags: jaime,openshift,automation
-    version: 1.7.1
+    version: 1.7.4
   name: jaime
 objects:
 
