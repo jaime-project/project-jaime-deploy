@@ -7,7 +7,7 @@ install i:
 	oc apply -f jaime-template.yaml
 	oc process jaime \
 		-p BACK_HOSTNAME_HTTP=jaime-jaime.apps.cluster-nrh9d.nrh9d.sandbox1367.opentlc.com \
-		-p JAIME_VERSION=1.7.9 \
+		-p JAIME_VERSION=1.7.10 \
 		| oc create -f -
 
 
