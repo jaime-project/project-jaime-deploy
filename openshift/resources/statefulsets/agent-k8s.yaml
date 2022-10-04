@@ -21,7 +21,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-kubernetes
-          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:1.7.9'
+          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:1.8.0'
           ports:
             - name: agent
               containerPort: 7001
