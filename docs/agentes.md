@@ -47,7 +47,7 @@ resultado = tools.sh(cmd:'ls', echo=False)
 parametros = tools.get_params()
 variable = parametros['algo']['variable']
 
-id_work = new_jaime_work('repositorio', 'modulo_prueba', 'OPENSHIFT', {
+id_work = new_jaime_job('repositorio', 'modulo_prueba', 'OPENSHIFT', {
     'algo': {
         'variable': 'hola mundo redondo'
     }
