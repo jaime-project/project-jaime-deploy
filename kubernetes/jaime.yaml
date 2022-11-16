@@ -1,0 +1,550 @@
+####################################################
+# SERVICES
+####################################################
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime
+  namespace: jaime
+  labels:
+    application: jaime
+    component: server
+spec:
+  selector:
+    app: jaime
+  ports:
+  - protocol: TCP
+    port: 5000
+    name: jaime
+    targetPort: 5000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-front
+  namespace: jaime
+  labels:
+    application: jaime-front
+    component: frontend
+name: jaime-front
+spec:
+  selector:
+    app: jaime-front
+  ports:
+    - protocol: TCP
+      port: 80
+      name: front
+      targetPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-agent-pushgateway
+  namespace: jaime
+  labels:
+    application: jaime-agent-pushgateway
+    component: agent
+spec:
+  ports:
+  - port: 7001
+    protocol: TCP
+    name: agent
+  - port: 9091
+    protocol: TCP
+    name: pushgateway
+  selector:
+    app: jaime-agent-pushgateway
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-agent-base
+  namespace: jaime
+  labels:
+    application: jaime-agent-base
+    component: agent
+spec:
+  ports:
+  - port: 7001
+    name: agent
+  selector:
+    app: jaime-agent-base
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-agent-kubernetes
+  namespace: jaime
+  labels:
+    application: jaime-agent-kubernetes
+    component: agent
+spec:
+  ports:
+  - port: 7001
+    name: agent
+  selector:
+    app: jaime-agent-kubernetes
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-agent-openshift
+  namespace: jaime
+  labels:
+    application: jaime-agent-openshift
+    component: agent
+spec:
+  ports:
+  - port: 7001
+    name: agent
+  selector:
+    app: jaime-agent-openshift
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: filebrowser
+  namespace: jaime
+  labels:
+    application: filebrowser
+    component: filebrowser
+spec:
+  selector:
+    app: filebrowser
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+---
+
+####################################################
+# ROUTES
+####################################################
+
+kind: Route
+apiVersion: route.openshift.io/v1
+id: jaime-front-http
+metadata:
+  name: jaime-front
+  namespace: jaime
+  annotations:
+    description: Route for frontend's http service.
+  labels:
+    application: jaime
+    component: frontend
+spec:
+  to:
+    name: jaime-front
+
+---
+
+kind: Route
+apiVersion: route.openshift.io/v1
+id: jaime-http
+metadata:
+  name: jaime
+  namespace: jaime
+  annotations:
+    description: Route for application's http service.
+  labels:
+    application: jaime
+    component: server
+spec:
+  to:
+    name: jaime
+
+---
+
+kind: Route
+apiVersion: route.openshift.io/v1
+id: jaime-pushgateway
+metadata:
+  name: jaime-pushgateway
+  namespace: jaime
+  annotations:
+    description: Route for pushgateway server.
+  labels:
+    application: jaime-pushgateway
+    component: server
+spec:
+  to:
+    name: jaime-agent-pushgateway
+  port:
+    targetPort: pushgateway
+
+---
+
+kind: Route
+apiVersion: route.openshift.io/v1
+id: filebrowser
+metadata:
+  name: filebrowser
+  namespace: jaime
+  annotations:
+    description: Route for filebrowser.
+  labels:
+    application: filebrowser
+    component: server
+spec:
+  to:
+    name: filebrowser
+
+---
+
+####################################################
+# DEPLOYMENTS
+####################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: jaime
+    component: server
+  name: jaime
+  namespace: jaime
+spec:
+  selector:
+    matchLabels:
+      app: jaime
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: jaime
+    spec:
+      volumes:
+        - name: jaime-pvc
+          persistentVolumeClaim:
+            claimName: jaime-pvc
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime
+          image: 'ghcr.io/jaime-project/jaime:1.8.0'
+          ports:
+            - containerPort: 5000
+          protocol: TCP
+          volumeMounts:
+            - name: jaime-pvc
+              mountPath: /home/jaime/.jaime
+            - name: jaime-agents-pvc
+              mountPath: /data
+      restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: jaime-front
+    component: frontend
+  name: jaime-front
+  namespace: jaime
+spec:
+  selector:
+    matchLabels:
+      app: jaime-front
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: jaime-front
+    spec:
+      containers:
+        - name: jaime-front
+          image: 'ghcr.io/jaime-project/jaime-front:1.8.0'
+          env:
+            - name: JAIME_URL
+              value: http://change-me-with-jaime-backend-ingress-url/
+          ports:
+            - containerPort: 8080
+          protocol: TCP
+      restartPolicy: Always
+
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: filebrowser
+    component: filebrowser
+  name: filebrowser
+  namespace: jaime
+spec:
+  volumes:
+    - name: jaime-pvc
+      persistentVolumeClaim:
+      claimName: jaime-pvc
+    - name: jaime-agents-pvc
+      persistentVolumeClaim:
+      claimName: jaime-agents-pvc
+  selector:
+    matchLabels:
+      app: filebrowser
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: filebrowser
+    spec:
+      volumes:
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: filebrowser
+          image: 'hurlenko/filebrowser:latest'
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: jaime-agents-pvc
+              mountPath: /data
+      restartPolicy: Always
+
+---
+
+####################################################
+# STATEFULSETS
+####################################################
+
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: jaime-agent-openshift
+    component: agent
+  name: jaime-agent-openshift
+  namespace: jaime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaime-agent-openshift
+  template:
+    metadata:
+      labels:
+        app: jaime-agent-openshift
+    spec:
+      volumes:
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime-agent-openshift
+          image: 'ghcr.io/jaime-project/jaime-agent-openshift:1.8.0'
+          ports:
+            - name: agent
+              containerPort: 7001
+              protocol: TCP
+          env:
+            - name: JAIME_URL
+              value: http://jaime:5000
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+          - name: jaime-agents-pvc
+            mountPath: /data
+      restartPolicy: Always
+  serviceName: jaime-agent-openshift
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+
+---
+
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: jaime-agent-kubernetes
+    component: agent
+  name: jaime-agent-kubernetes
+  namespace: jaime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaime-agent-kubernetes
+  template:
+    metadata:
+      labels:
+        app: jaime-agent-kubernetes
+    spec:
+      volumes:
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime-agent-kubernetes
+          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:1.8.0'
+          ports:
+            - name: agent
+              containerPort: 7001
+              protocol: TCP
+          env:
+            - name: JAIME_URL
+              value: http://jaime:5000
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: jaime-agents-pvc
+              mountPath: /data
+    restartPolicy: Always
+  serviceName: jaime-agent-kubernetes
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+
+---
+
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: jaime-agent-base
+    component: agent
+  name: jaime-agent-base
+  namespace: jaime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaime-agent-base
+  template:
+    metadata:
+      labels:
+        app: jaime-agent-base
+    spec:
+      volumes:
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime-agent-base
+          image: 'ghcr.io/jaime-project/jaime-agent:1.8.0'
+          ports:
+            - name: agent
+              containerPort: 7001
+              protocol: TCP
+          env:
+            - name: JAIME_URL
+              value: http://jaime:5000
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: jaime-agents-pvc
+              mountPath: /data
+    restartPolicy: Always
+  serviceName: jaime-agent-base
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+
+---
+
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: jaime-agent-pushgateway
+    component: agent
+  name: jaime-agent-pushgateway
+  namespace: jaime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaime-agent-pushgateway
+  template:
+    metadata:
+      labels:
+        app: jaime-agent-pushgateway
+    spec:
+      volumes:
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime-agent-base
+          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:1.8.0'
+          ports:
+            - name: agent
+              containerPort: 7001
+              protocol: TCP
+            - name: gateway
+              containerPort: 9091
+              protocol: TCP
+          env:
+            - name: JAIME_URL
+              value: http://jaime:5000
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: jaime-agents-pvc
+              mountPath: /data
+    restartPolicy: Always
+  serviceName: jaime-agent-pushgateway
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+
+---
+
+####################################################
+# PVCs
+####################################################
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jaime-pvc
+  namespace: jaime
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: ocs-storagecluster-cephfs
+  volumeMode: Filesystem
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jaime-agents-pvc
+  namespace: jaime
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: ocs-storagecluster-cephfs
+  volumeMode: Filesystem
+
+---
+
