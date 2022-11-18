@@ -149,6 +149,10 @@ metadata:
 spec:
   to:
     name: jaime-front
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
 
 ---
 
@@ -166,6 +170,10 @@ metadata:
 spec:
   to:
     name: jaime
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
 
 ---
 
@@ -185,6 +193,10 @@ spec:
     name: jaime-agent-pushgateway
   port:
     targetPort: pushgateway
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
 
 ---
 
@@ -202,6 +214,10 @@ metadata:
 spec:
   to:
     name: filebrowser
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
 
 ---
 
