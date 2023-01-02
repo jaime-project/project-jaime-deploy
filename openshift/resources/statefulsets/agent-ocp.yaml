@@ -21,7 +21,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-openshift
-          image: 'ghcr.io/jaime-project/jaime-agent-openshift:1.9.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-openshift:1.10.0'
           ports:
             - name: agent
               containerPort: 7001
