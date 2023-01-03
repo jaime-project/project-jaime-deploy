@@ -51,7 +51,7 @@ id_job = new_jaime_job('repositorio', 'modulo_prueba', 'OPENSHIFT', {
     'algo': {
         'variable': 'hola mundo redondo'
     }
-}, 'nombre_del_work')
+}, 'nombre_del_job')
 ```
 
 ---

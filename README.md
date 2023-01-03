@@ -12,8 +12,5 @@ Contiene los archivos necesarios para levantar Jaime en varios ambientes
 
 * [Desplegar Jaime](docs/desplegar.md)
 * [Herramientas de agentes](docs/agentes.md)
+* [Agentes custom](docs/agente_custom.md)
 * [Historico de Versiones](docs/versiones.md)
-
----
-
-

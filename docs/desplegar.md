@@ -57,7 +57,7 @@ podman-compose down
 
 * Openshift 4
 
-### Uso openshift
+### Uso de template
 
 Previamente se debe estar logueado al cluster con el comando `oc login`
 
@@ -65,6 +65,12 @@ Dentro de la carpeta openshift
 
 ```sh
 make j
+```
+
+### Despliegue con archivo yaml
+
+```sh
+oc apply -f https://raw.githubusercontent.com/jaime-project/project-jaime-deploy/master/openshift/jaime.yaml
 ```
 
 ---
