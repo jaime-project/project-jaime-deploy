@@ -27,6 +27,10 @@ Registro de cambios en versiones de Jaime
   * Se corrigen bugs
   * Se da soporte a Openshift
   * Se agrega funcion de crons
+* **1.9.0**:
+  * Se corrigen bugs
+* **1.10.0**:
+  * Se corrigen bugs
 
 ## Back-end
 
@@ -49,6 +53,10 @@ Registro de cambios en versiones de Jaime
   * Se corrigen bugs
   * Se da soporte a Openshift
   * Se agrega funcion de crons
+* **1.9.0**:
+  * Se corrigen bugs
+* **1.10.0**:
+  * Se corrigen bugs
 
 ## Agentes
 
@@ -71,6 +79,10 @@ Registro de cambios en versiones de Jaime
   * Se corrigen bugs
   * Se da soporte a Openshift
   * Se agrega funcion de crons
+* **1.9.0**:
+  * Se corrigen bugs
+* **1.10.0**:
+  * Se corrigen bugs
 ---
 
 ## :leftwards_arrow_with_hook: Navegar
