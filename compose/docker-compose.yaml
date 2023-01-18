@@ -2,10 +2,6 @@ version: "3.8"
 
 services:
 
-    ####################################################
-    # JAIME
-    ####################################################
-
     jaime:
         container_name: jaime
         image: ghcr.io/jaime-project/jaime:1.10.0
@@ -14,6 +10,7 @@ services:
             - shared:/data
         ports:
             - 5000:5000
+            - 8080:8080
 
     agent1:
         container_name: agent1
@@ -59,14 +56,6 @@ services:
         ports:
             - 7004:7001
             - 9091:9091
-
-    front:
-        container_name: jaime-front
-        image: ghcr.io/jaime-project/jaime-front:1.10.0
-        environment:
-            - JAIME_URL=http://0.0.0.0:5000
-        ports:
-            - 8080:8080
 
 volumes:
     jaime:

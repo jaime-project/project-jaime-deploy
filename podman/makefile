@@ -1,4 +1,3 @@
-VERSION_FRONT := 1.10.0
 VERSION_JAIME := 1.10.0
 VERSION_AGENT := 1.10.0
 
@@ -7,9 +6,10 @@ jaime j:
 	podman run --rm -d \
 		--name=jaime \
 		--hostname=jaime \
-		-v jaime:/home/jaime/.jaime \
+		-v jaime:/home/jaime/.jaime:rw \
 		-v shared:/data:rw \
 		-p 5000:5000 \
+		-p 8080:8080 \
 		--network=jaime-net \
 		ghcr.io/jaime-project/jaime:$(VERSION_JAIME)
 
@@ -58,16 +58,6 @@ agent4 a4:
 		ghcr.io/jaime-project/jaime-agent-pushgateway:$(VERSION_AGENT)
 
 
-front f:
-	podman run --rm -d \
-		--name=front \
-		--hostname=front \
-		-p 8080:8080 \
-		-e JAIME_URL=http://0.0.0.0:5000 \
-		--network=jaime-net \
-		ghcr.io/jaime-project/jaime-front:$(VERSION_FRONT)
-
-		
 kill k:
 	podman kill jaime agent1 agent2 agent3 agent4
 	podman network rm jaime-net
@@ -77,7 +67,7 @@ network n:
 	podman network create jaime-net
 	
 	
-run r: n j a1 a2 a3 a4 f 
+run r: n j a1 a2 a3 a4
 
 
 clean c:

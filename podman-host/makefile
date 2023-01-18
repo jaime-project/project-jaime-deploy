@@ -1,4 +1,3 @@
-VERSION_FRONT := 1.10.0
 VERSION_JAIME := 1.10.0
 VERSION_AGENT := 1.10.0
 
@@ -66,16 +65,8 @@ agent4 a4:
 		ghcr.io/jaime-project/jaime-agent-pushgateway:$(VERSION_AGENT)
 		
 
-front f:
-	podman run --rm -d \
-		--name=front \
-		--network=host \
-		-e JAIME_URL=http://0.0.0.0:5000 \
-		ghcr.io/jaime-project/jaime-front:$(VERSION_FRONT)
-
-
 kill k:
-	podman kill jaime agent1 agent2 agent3 agent4 front 
+	podman kill jaime agent1 agent2 agent3 agent4 
 	
 	
-run r: j a1 a2 a3 a4 f 
+run r: j a1 a2 a3 a4
