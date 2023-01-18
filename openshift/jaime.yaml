@@ -14,51 +14,14 @@ spec:
   selector:
     app: jaime
   ports:
-  - protocol: TCP
-    port: 5000
-    name: jaime
-    targetPort: 5000
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: jaime-front
-  namespace: jaime
-  labels:
-    application: jaime-front
-    component: frontend
-name: jaime-front
-spec:
-  selector:
-    app: jaime-front
-  ports:
     - protocol: TCP
-      port: 80
+      port: 5000
+      name: jaime
+      targetPort: 5000
+    - protocol: TCP
+      port: 8080
       name: front
       targetPort: 8080
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: jaime-agent-pushgateway
-  namespace: jaime
-  labels:
-    application: jaime-agent-pushgateway
-    component: agent
-spec:
-  ports:
-  - port: 7001
-    protocol: TCP
-    name: agent
-  - port: 9091
-    protocol: TCP
-    name: pushgateway
-  selector:
-    app: jaime-agent-pushgateway
 
 ---
 
@@ -116,6 +79,27 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: jaime-agent-pushgateway
+  namespace: jaime
+  labels:
+    application: jaime-agent-pushgateway
+    component: agent
+spec:
+  ports:
+  - port: 7001
+    protocol: TCP
+    name: agent
+  - port: 9091
+    protocol: TCP
+    name: pushgateway
+  selector:
+    app: jaime-agent-pushgateway
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
   name: filebrowser
   namespace: jaime
   labels:
@@ -137,18 +121,17 @@ spec:
 
 kind: Route
 apiVersion: route.openshift.io/v1
-id: jaime-front-http
 metadata:
   name: jaime-front
   namespace: jaime
-  annotations:
-    description: Route for frontend's http service.
   labels:
     application: jaime
     component: frontend
 spec:
+  Port:
+    targetPort: 8080
   to:
-    name: jaime-front
+    name: jaime
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
@@ -158,16 +141,15 @@ spec:
 
 kind: Route
 apiVersion: route.openshift.io/v1
-id: jaime-http
 metadata:
   name: jaime
   namespace: jaime
-  annotations:
-    description: Route for application's http service.
   labels:
     application: jaime
     component: server
 spec:
+  Port:
+    targetPort: 5000 
   to:
     name: jaime
   tls:
@@ -257,6 +239,7 @@ spec:
           image: 'ghcr.io/jaime-project/jaime:1.10.0'
           ports:
             - containerPort: 5000
+            - containerPort: 8080
           protocol: TCP
           volumeMounts:
             - name: jaime-pvc
@@ -265,38 +248,6 @@ spec:
               mountPath: /data
       restartPolicy: Always
 
----
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    application: jaime-front
-    component: frontend
-  name: jaime-front
-  namespace: jaime
-spec:
-  selector:
-    matchLabels:
-      app: jaime-front
-  replicas: 1
-  strategy:
-    type: RollingUpdate
-  template:
-    metadata:
-      labels:
-        app: jaime-front
-    spec:
-      containers:
-        - name: jaime-front
-          image: 'ghcr.io/jaime-project/jaime-front:1.10.0'
-          env:
-            - name: JAIME_URL
-              value: http://change-me-with-jaime-backend-ingress-url/
-          ports:
-            - containerPort: 8080
-          protocol: TCP
-      restartPolicy: Always
 
 ---
 
@@ -542,7 +493,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 5Gi
   storageClassName: ocs-storagecluster-cephfs
   volumeMode: Filesystem
 
@@ -558,7 +509,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 8Gi
+      storage: 10Gi
   storageClassName: ocs-storagecluster-cephfs
   volumeMode: Filesystem
 
