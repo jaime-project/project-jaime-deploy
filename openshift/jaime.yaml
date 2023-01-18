@@ -16,7 +16,7 @@ spec:
   ports:
     - protocol: TCP
       port: 5000
-      name: jaime
+      name: server
       targetPort: 5000
     - protocol: TCP
       port: 8080
@@ -128,8 +128,8 @@ metadata:
     application: jaime
     component: frontend
 spec:
-  Port:
-    targetPort: 8080
+  port:
+    targetPort: front
   to:
     name: jaime
   tls:
@@ -149,7 +149,7 @@ metadata:
     component: server
 spec:
   Port:
-    targetPort: 5000 
+    targetPort: server 
   to:
     name: jaime
   tls:
@@ -494,7 +494,6 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: ocs-storagecluster-cephfs
   volumeMode: Filesystem
 
 ---
@@ -510,7 +509,6 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: ocs-storagecluster-cephfs
   volumeMode: Filesystem
 
 ---

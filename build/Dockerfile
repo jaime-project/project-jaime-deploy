@@ -10,6 +10,12 @@ COPY --from=front /etc/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=front /usr/share/nginx/html /usr/share/nginx/html
 COPY --from=front /usr/share/nginx/html/assets/appconfig.env.json /usr/share/nginx/html/assets/appconfig.env.json
 
+RUN chmod 777 /var/log/nginx/access.log >> /var/log/nginx/access.log
+RUN chmod 777 /var/log/nginx/error.log >> /var/log/nginx/error.log
+RUN chmod 777 /usr/share/nginx/html -R
+RUN chmod 777 /var/lib/nginx/ -R
+
+ARG ARG_VERSION=1.10.0
 ENV VERSION=${ARG_VERSION}
 ENV TZ=America/Argentina/Buenos_Aires
 
