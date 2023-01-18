@@ -237,6 +237,9 @@ spec:
       containers:
         - name: jaime
           image: 'ghcr.io/jaime-project/jaime:1.10.0'
+          env:
+            - name: JAIME_URL
+              value: https://<jaime-route-url>/
           ports:
             - containerPort: 5000
             - containerPort: 8080
