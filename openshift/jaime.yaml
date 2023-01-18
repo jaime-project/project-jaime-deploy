@@ -16,7 +16,7 @@ spec:
   ports:
     - protocol: TCP
       port: 5000
-      name: jaime
+      name: server
       targetPort: 5000
     - protocol: TCP
       port: 8080
@@ -128,8 +128,8 @@ metadata:
     application: jaime
     component: frontend
 spec:
-  Port:
-    targetPort: 8080
+  port:
+    targetPort: front
   to:
     name: jaime
   tls:
@@ -149,7 +149,7 @@ metadata:
     component: server
 spec:
   Port:
-    targetPort: 5000 
+    targetPort: server 
   to:
     name: jaime
   tls:
@@ -246,8 +246,6 @@ spec:
               mountPath: /home/jaime/.jaime
             - name: jaime-agents-pvc
               mountPath: /data
-          securityContext:
-            allowPrivilegeEscalation: false
       restartPolicy: Always
 
 
@@ -294,8 +292,6 @@ spec:
           volumeMounts:
             - name: jaime-agents-pvc
               mountPath: /data
-          securityContext:
-            allowPrivilegeEscalation: false
       restartPolicy: Always
 
 ---
@@ -340,8 +336,6 @@ spec:
           volumeMounts:
           - name: jaime-agents-pvc
             mountPath: /data
-          securityContext:
-            allowPrivilegeEscalation: false
       restartPolicy: Always
   serviceName: jaime-agent-openshift
   podManagementPolicy: OrderedReady
@@ -386,8 +380,6 @@ spec:
           volumeMounts:
             - name: jaime-agents-pvc
               mountPath: /data
-          securityContext:
-            allowPrivilegeEscalation: false
     restartPolicy: Always
   serviceName: jaime-agent-kubernetes
   podManagementPolicy: OrderedReady
@@ -432,8 +424,6 @@ spec:
           volumeMounts:
             - name: jaime-agents-pvc
               mountPath: /data
-          securityContext:
-            allowPrivilegeEscalation: false
     restartPolicy: Always
   serviceName: jaime-agent-base
   podManagementPolicy: OrderedReady
@@ -481,8 +471,6 @@ spec:
           volumeMounts:
             - name: jaime-agents-pvc
               mountPath: /data
-          securityContext:
-            allowPrivilegeEscalation: false
     restartPolicy: Always
   serviceName: jaime-agent-pushgateway
   podManagementPolicy: OrderedReady
