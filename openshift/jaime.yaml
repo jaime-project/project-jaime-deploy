@@ -5,22 +5,35 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: jaime
+  name: jaime-back
   namespace: jaime
   labels:
     application: jaime
     component: server
 spec:
   selector:
-    app: jaime
+    app: jaime-back
   ports:
     - protocol: TCP
       port: 5000
-      name: server
       targetPort: 5000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-front
+  namespace: jaime
+  labels:
+    application: jaime
+    component: frontend
+spec:
+  selector:
+    app: jaime
+  ports:
     - protocol: TCP
       port: 8080
-      name: front
       targetPort: 8080
 
 ---
@@ -31,7 +44,7 @@ metadata:
   name: jaime-agent-base
   namespace: jaime
   labels:
-    application: jaime-agent-base
+    application: jaime
     component: agent
 spec:
   ports:
@@ -48,7 +61,7 @@ metadata:
   name: jaime-agent-kubernetes
   namespace: jaime
   labels:
-    application: jaime-agent-kubernetes
+    application: jaime
     component: agent
 spec:
   ports:
@@ -65,7 +78,7 @@ metadata:
   name: jaime-agent-openshift
   namespace: jaime
   labels:
-    application: jaime-agent-openshift
+    application: jaime
     component: agent
 spec:
   ports:
@@ -82,7 +95,7 @@ metadata:
   name: jaime-agent-pushgateway
   namespace: jaime
   labels:
-    application: jaime-agent-pushgateway
+    application: jaime
     component: agent
 spec:
   ports:
@@ -103,7 +116,7 @@ metadata:
   name: filebrowser
   namespace: jaime
   labels:
-    application: filebrowser
+    application: jaime
     component: filebrowser
 spec:
   selector:
@@ -128,10 +141,8 @@ metadata:
     application: jaime
     component: frontend
 spec:
-  port:
-    targetPort: front
   to:
-    name: jaime
+    name: jaime-front
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
@@ -142,16 +153,14 @@ spec:
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: jaime
+  name: jaime-back
   namespace: jaime
   labels:
     application: jaime
     component: server
 spec:
-  Port:
-    targetPort: server 
   to:
-    name: jaime
+    name: jaime-back
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
@@ -165,11 +174,9 @@ id: jaime-pushgateway
 metadata:
   name: jaime-pushgateway
   namespace: jaime
-  annotations:
-    description: Route for pushgateway server.
   labels:
-    application: jaime-pushgateway
-    component: server
+    application: jaime
+    component: agent
 spec:
   to:
     name: jaime-agent-pushgateway
@@ -188,11 +195,9 @@ id: filebrowser
 metadata:
   name: filebrowser
   namespace: jaime
-  annotations:
-    description: Route for filebrowser.
   labels:
-    application: filebrowser
-    component: server
+    application: jaime
+    component: filebrowser
 spec:
   to:
     name: filebrowser
@@ -213,19 +218,19 @@ metadata:
   labels:
     application: jaime
     component: server
-  name: jaime
+  name: jaime-back
   namespace: jaime
 spec:
   selector:
     matchLabels:
-      app: jaime
+      app: jaime-back
   replicas: 1
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: jaime
+        app: jaime-back
     spec:
       volumes:
         - name: jaime-pvc
@@ -236,13 +241,9 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime:1.10.0'
-          env:
-            - name: JAIME_URL
-              value: https://<jaime-route-url>/
+          image: 'ghcr.io/jaime-project/jaime-back:1.10.0'
           ports:
             - containerPort: 5000
-            - containerPort: 8080
           protocol: TCP
           volumeMounts:
             - name: jaime-pvc
@@ -251,15 +252,46 @@ spec:
               mountPath: /data
       restartPolicy: Always
 
-
 ---
-
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    application: filebrowser
+    application: jaime
+    component: frontend
+  name: jaime-front
+  namespace: jaime
+spec:
+  selector:
+    matchLabels:
+      app: jaime-front
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: jaime-front
+    spec:
+      containers:
+        - name: jaime
+          image: 'ghcr.io/jaime-project/jaime-front:1.10.0'
+          env:
+            - name: JAIME_URL
+              value: https://<jaime-route-url>/
+          ports:
+            - containerPort: 5000
+          protocol: TCP
+      restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: jaime
     component: filebrowser
   name: filebrowser
   namespace: jaime
