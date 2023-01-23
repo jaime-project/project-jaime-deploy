@@ -4,7 +4,8 @@ services:
 
     jaime-back:
         container_name: jaime-back
-        image: ghcr.io/jaime-project/jaime-back:1.10.0
+        hostname: jaime-back
+        image: ghcr.io/jaime-project/jaime-back:1.11.0
         volumes:
             - jaime:/home/jaime/.jaime
             - shared:/data
@@ -13,7 +14,8 @@ services:
 
     jaime-front:
         container_name: jaime-front
-        image: ghcr.io/jaime-project/jaime-front:1.10.0
+        hostname: jaime-front
+        image: ghcr.io/jaime-project/jaime-front:1.11.0
         environment:
             - JAIME_URL=http://jaime-back:5000
         ports:
@@ -22,7 +24,7 @@ services:
     agent1:
         container_name: agent1
         hostname: agent1
-        image: ghcr.io/jaime-project/jaime-agent:1.10.0
+        image: ghcr.io/jaime-project/jaime-agent:1.11.0
         environment:
             - JAIME_URL=http://jaime-back:5000
         volumes:
@@ -33,7 +35,7 @@ services:
     agent2:
         container_name: agent2
         hostname: agent2
-        image: ghcr.io/jaime-project/jaime-agent-kubernetes:1.10.0
+        image: ghcr.io/jaime-project/jaime-agent-kubernetes:1.11.0
         environment:
             - JAIME_URL=http://jaime-back:5000
         volumes:
@@ -44,7 +46,7 @@ services:
     agent3:
         container_name: agent3
         hostname: agent3
-        image: ghcr.io/jaime-project/jaime-agent-openshift:1.10.0
+        image: ghcr.io/jaime-project/jaime-agent-openshift:1.11.0
         environment:
             - JAIME_URL=http://jaime-back:5000
         volumes:
@@ -55,7 +57,7 @@ services:
     agent4:
         container_name: agent4
         hostname: agent4
-        image: ghcr.io/jaime-project/jaime-agent-pushgateway:1.10.0
+        image: ghcr.io/jaime-project/jaime-agent-pushgateway:1.11.0
         environment:
             - JAIME_URL=http://jaime-back:5000
         volumes:
@@ -71,6 +73,4 @@ volumes:
         external: false
 
 networks:
-    default:
-        external:
-            name: jaime-net
+    jaime-net:

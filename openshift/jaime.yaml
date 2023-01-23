@@ -30,7 +30,7 @@ metadata:
     component: frontend
 spec:
   selector:
-    app: jaime
+    app: jaime-front
   ports:
     - protocol: TCP
       port: 8080
@@ -241,7 +241,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-back:1.10.0'
+          image: 'ghcr.io/jaime-project/jaime-back:1.11.0'
           ports:
             - containerPort: 5000
           protocol: TCP
@@ -276,7 +276,7 @@ spec:
     spec:
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-front:1.10.0'
+          image: 'ghcr.io/jaime-project/jaime-front:1.11.0'
           env:
             - name: JAIME_URL
               value: https://<jaime-route-url>/
@@ -359,7 +359,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-openshift
-          image: 'ghcr.io/jaime-project/jaime-agent-openshift:1.10.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-openshift:1.11.0'
           ports:
             - name: agent
               containerPort: 7001
@@ -403,7 +403,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-kubernetes
-          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:1.10.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:1.11.0'
           ports:
             - name: agent
               containerPort: 7001
@@ -447,7 +447,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-base
-          image: 'ghcr.io/jaime-project/jaime-agent:1.10.0'
+          image: 'ghcr.io/jaime-project/jaime-agent:1.11.0'
           ports:
             - name: agent
               containerPort: 7001
@@ -491,7 +491,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-base
-          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:1.10.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:1.11.0'
           ports:
             - name: agent
               containerPort: 7001
