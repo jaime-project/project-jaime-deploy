@@ -1,4 +1,4 @@
-ARG ARG_VERSION=1.10.0
+ARG ARG_VERSION=1.11.0
 
 FROM ghcr.io/jaime-project/jaime-front:${ARG_VERSION} as front
 FROM ghcr.io/jaime-project/jaime-back:${ARG_VERSION}
@@ -15,7 +15,7 @@ RUN chmod 777 /var/log/nginx/error.log >> /var/log/nginx/error.log
 RUN chmod 777 /usr/share/nginx/html -R
 RUN chmod 777 /var/lib/nginx/ -R
 
-ARG ARG_VERSION=1.10.0
+ARG ARG_VERSION=1.11.0
 ENV VERSION=${ARG_VERSION}
 ENV TZ=America/Argentina/Buenos_Aires
 
