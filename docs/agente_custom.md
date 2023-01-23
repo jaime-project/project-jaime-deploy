@@ -9,7 +9,7 @@
 Es necesario definir lo siguiente para que funcione
 
 ```dockerfile
-FROM ghcr.io/jaime-project/jaime-agent:latest
+FROM ghcr.io/jaime-project/jaime-agent:1.11.0
 ENV AGENT_TYPE=TU_TIPO_DE_AGENTE
 ```
 
