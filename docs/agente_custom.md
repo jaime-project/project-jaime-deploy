@@ -1,4 +1,4 @@
-# :tools: Creacion de agentes custom
+# Creacion de agentes custom
 
 > Se explica como crear agentes custom con **docker o postman**
 
