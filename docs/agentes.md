@@ -1,4 +1,4 @@
-# :tools: Herramientas de los agentes
+# Herramientas de los agentes
 
 Explica el uso de la libreria de **tools** para la creacion de modulos
 
