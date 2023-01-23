@@ -30,7 +30,7 @@ metadata:
     component: frontend
 spec:
   selector:
-    app: jaime
+    app: jaime-front
   ports:
     - protocol: TCP
       port: 8080
