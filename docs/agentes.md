@@ -36,7 +36,7 @@ Para usar las tools solo hay que hacer un import en tu modulo
 ```python
 import tools
 
-resultado = tools.sh(cmd:'ls', echo=False)
+resultado = tools.sh(cmd='ls', echo=False)
 
 # ...
 # yaml de parametros
