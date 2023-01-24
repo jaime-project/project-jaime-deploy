@@ -249,7 +249,7 @@ spec:
             - name: jaime-pvc
               mountPath: /home/jaime/.jaime
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
       restartPolicy: Always
 
 ---
@@ -326,7 +326,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
       restartPolicy: Always
 
 ---
@@ -370,7 +370,7 @@ spec:
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - name: jaime-agents-pvc
-            mountPath: /data
+            mountPath: /shared
       restartPolicy: Always
   serviceName: jaime-agent-openshift
   podManagementPolicy: OrderedReady
@@ -414,7 +414,7 @@ spec:
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
     restartPolicy: Always
   serviceName: jaime-agent-kubernetes
   podManagementPolicy: OrderedReady
@@ -458,7 +458,7 @@ spec:
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
     restartPolicy: Always
   serviceName: jaime-agent-base
   podManagementPolicy: OrderedReady
@@ -505,7 +505,7 @@ spec:
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
     restartPolicy: Always
   serviceName: jaime-agent-pushgateway
   podManagementPolicy: OrderedReady

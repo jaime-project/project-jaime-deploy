@@ -8,7 +8,7 @@ jaime-back jb:
 		--name=jaime-back \
 		--hostname=jaime-back \
 		-v jaime:/home/jaime/.jaime:rw \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		-p 5000:5000 \
 		--network=jaime-net \
 		ghcr.io/jaime-project/jaime-back:$(VERSION_JAIME_BACK)
@@ -28,7 +28,7 @@ agent1 a1:
 	podman run --rm -d \
 		--name=agent1 \
 		--hostname=agent1 \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		-p 7001:7001 \
 		-e JAIME_URL=http://jaime-back:5000 \
 		--network=jaime-net \
@@ -39,7 +39,7 @@ agent2 a2:
 	podman run --rm -d \
 		--name=agent2 \
 		--hostname=agent2 \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		-p 7002:7001 \
 		-e JAIME_URL=http://jaime-back:5000 \
 		--network=jaime-net \
@@ -50,7 +50,7 @@ agent3 a3:
 	podman run --rm -d \
 		--name=agent3 \
 		--hostname=agent3 \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		-p 7003:7001 \
 		-e JAIME_URL=http://jaime-back:5000 \
 		--network=jaime-net \
@@ -61,7 +61,7 @@ agent4 a4:
 	podman run --rm -d \
 		--name=agent4 \
 		--hostname=agent4 \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		-p 7004:7001 \
 		-e JAIME_URL=http://jaime-back:5000 \
 		--network=jaime-net \

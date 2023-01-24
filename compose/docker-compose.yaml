@@ -8,7 +8,7 @@ services:
         image: ghcr.io/jaime-project/jaime-back:1.11.0
         volumes:
             - jaime:/home/jaime/.jaime
-            - shared:/data
+            - shared:/shared
         ports:
             - 5000:5000
 
@@ -28,43 +28,43 @@ services:
         environment:
             - JAIME_URL=http://jaime-back:5000
         volumes:
-            - shared:/data
+            - shared:/shared
         ports:
             - 7001:7001
 
-    agent2:
-        container_name: agent2
-        hostname: agent2
-        image: ghcr.io/jaime-project/jaime-agent-kubernetes:1.11.0
-        environment:
-            - JAIME_URL=http://jaime-back:5000
-        volumes:
-            - shared:/data
-        ports:
-            - 7002:7001
-
-    agent3:
-        container_name: agent3
-        hostname: agent3
-        image: ghcr.io/jaime-project/jaime-agent-openshift:1.11.0
-        environment:
-            - JAIME_URL=http://jaime-back:5000
-        volumes:
-            - shared:/data
-        ports:
-            - 7003:7001
-
-    agent4:
-        container_name: agent4
-        hostname: agent4
-        image: ghcr.io/jaime-project/jaime-agent-pushgateway:1.11.0
-        environment:
-            - JAIME_URL=http://jaime-back:5000
-        volumes:
-            - shared:/data
-        ports:
-            - 7004:7001
-            - 9091:9091
+    # agent2:
+    #     container_name: agent2
+    #     hostname: agent2
+    #     image: ghcr.io/jaime-project/jaime-agent-kubernetes:1.11.0
+    #     environment:
+    #         - JAIME_URL=http://jaime-back:5000
+    #     volumes:
+    #         - shared:/shared
+    #     ports:
+    #         - 7002:7001
+    #
+    # agent3:
+    #     container_name: agent3
+    #     hostname: agent3
+    #     image: ghcr.io/jaime-project/jaime-agent-openshift:1.11.0
+    #     environment:
+    #         - JAIME_URL=http://jaime-back:5000
+    #     volumes:
+    #         - shared:/shared
+    #     ports:
+    #         - 7003:7001
+    #
+    # agent4:
+    #     container_name: agent4
+    #     hostname: agent4
+    #     image: ghcr.io/jaime-project/jaime-agent-pushgateway:1.11.0
+    #     environment:
+    #         - JAIME_URL=http://jaime-back:5000
+    #     volumes:
+    #         - shared:/shared
+    #     ports:
+    #         - 7004:7001
+    #         - 9091:9091
 
 volumes:
     jaime:

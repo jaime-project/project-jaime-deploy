@@ -21,7 +21,7 @@ ENV TZ=America/Argentina/Buenos_Aires
 
 ENV PYTHON_HOST=0.0.0.0
 ENV PYTHON_PORT=5000
-ENV WORKINGDIR_PATH=/data/workingdir
+ENV WORKINGDIR_PATH=/shared/workingdir
 ENV JAIME_URL http://0.0.0.0:5000
 
 EXPOSE 80 5000
