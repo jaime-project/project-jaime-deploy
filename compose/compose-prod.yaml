@@ -2,10 +2,25 @@ version: "3.8"
 
 services:
 
+    postgres:
+        image: docker.io/library/postgres:15.1
+        container_name: postgres
+        hostname: postgres
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: jaime
+        volumes:
+            - postgres:/var/lib/postgresql/data:rw
+        ports:
+            - 5432:5432
+
     jaime-back:
         container_name: jaime-back
         hostname: jaime-back
         image: ghcr.io/jaime-project/jaime-back:1.11.0
+        environment:
+            DB_URL: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
         volumes:
             - jaime:/home/jaime/.jaime:rw
             - shared:/shared:rw
@@ -70,6 +85,8 @@ volumes:
     jaime:
         external: false
     shared:
+        external: false
+    postgres:
         external: false
 
 networks:
