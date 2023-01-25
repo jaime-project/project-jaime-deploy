@@ -113,18 +113,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: filebrowser
+  name: postgres
   namespace: jaime
   labels:
     application: jaime
-    component: filebrowser
+    component: db
 spec:
-  selector:
-    app: filebrowser
   ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
+  - port: 5432
+    protocol: TCP
+  selector:
+    app: postgres
 
 ---
 
@@ -189,25 +188,6 @@ spec:
 
 ---
 
-kind: Route
-apiVersion: route.openshift.io/v1
-id: filebrowser
-metadata:
-  name: filebrowser
-  namespace: jaime
-  labels:
-    application: jaime
-    component: filebrowser
-spec:
-  to:
-    name: filebrowser
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
-  wildcardPolicy: None
-
----
-
 ####################################################
 # DEPLOYMENTS
 ####################################################
@@ -242,14 +222,17 @@ spec:
       containers:
         - name: jaime
           image: 'ghcr.io/jaime-project/jaime-back:1.11.0'
+          env:
+            - name: DB_URL
+              value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
           ports:
             - containerPort: 5000
-          protocol: TCP
+              protocol: TCP
           volumeMounts:
             - name: jaime-pvc
               mountPath: /home/jaime/.jaime
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
       restartPolicy: Always
 
 ---
@@ -292,41 +275,41 @@ kind: Deployment
 metadata:
   labels:
     application: jaime
-    component: filebrowser
-  name: filebrowser
+    component: db
+  name: postgres
   namespace: jaime
 spec:
-  volumes:
-    - name: jaime-pvc
-      persistentVolumeClaim:
-      claimName: jaime-pvc
-    - name: jaime-agents-pvc
-      persistentVolumeClaim:
-      claimName: jaime-agents-pvc
   selector:
     matchLabels:
-      app: filebrowser
+      app: postgres
   replicas: 1
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: filebrowser
+        app: postgres
     spec:
       volumes:
-        - name: jaime-agents-pvc
+        - name: postgres-pvc
           persistentVolumeClaim:
-            claimName: jaime-agents-pvc
+            claimName: postgres-pvc
       containers:
-        - name: filebrowser
-          image: 'hurlenko/filebrowser:latest'
+        - name: postgres
+          image: postgres:15
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: jaime
           ports:
-            - containerPort: 8080
-              protocol: TCP
+            - containerPort: 5432
+              protocol: UDP
           volumeMounts:
-            - name: jaime-agents-pvc
-              mountPath: /data
+            - name: postgres-pvc
+              mountPath: /var/lib/postgresql
       restartPolicy: Always
 
 ---
@@ -366,11 +349,11 @@ spec:
               protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime:5000
+              value: http://jaime-back:5000
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - name: jaime-agents-pvc
-            mountPath: /data
+            mountPath: /shared
       restartPolicy: Always
   serviceName: jaime-agent-openshift
   podManagementPolicy: OrderedReady
@@ -410,11 +393,11 @@ spec:
               protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime:5000
+              value: http://jaime-back:5000
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
     restartPolicy: Always
   serviceName: jaime-agent-kubernetes
   podManagementPolicy: OrderedReady
@@ -454,11 +437,11 @@ spec:
               protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime:5000
+              value: http://jaime-back:5000
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
     restartPolicy: Always
   serviceName: jaime-agent-base
   podManagementPolicy: OrderedReady
@@ -501,11 +484,11 @@ spec:
               protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime:5000
+              value: http://jaime-back:5000
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
-              mountPath: /data
+              mountPath: /shared
     restartPolicy: Always
   serviceName: jaime-agent-pushgateway
   podManagementPolicy: OrderedReady
@@ -548,3 +531,18 @@ spec:
 
 ---
 
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pvc
+  namespace: jaime
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+
+---

@@ -8,7 +8,7 @@ jaime-back jb:
 		--name=jaime-back \
 		--hostname=localhost \
 		-v jaime:/home/jaime/.jaime \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=5000 \
@@ -28,7 +28,7 @@ agent1 a1:
 	podman run --rm -d \
 		--name=agent1 \
 		--hostname=localhost \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7001 \
@@ -41,7 +41,7 @@ agent2 a2:
 	podman run --rm -d \
 		--name=agent2 \
 		--hostname=localhost \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7002 \
@@ -54,7 +54,7 @@ agent3 a3:
 	podman run --rm -d \
 		--name=agent3 \
 		--hostname=localhost \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7003 \
@@ -67,7 +67,7 @@ agent4 a4:
 	podman run --rm -d \
 		--name=agent4 \
 		--hostname=localhost \
-		-v shared:/data:rw \
+		-v shared:/shared:rw \
 		--network=host \
 		-e PYTHON_HOST=localhost \
 		-e PYTHON_PORT=7004 \
