@@ -122,7 +122,6 @@ spec:
   ports:
   - port: 5432
     protocol: UDP
-    name: agent
   selector:
     app: postgres
 
@@ -310,7 +309,7 @@ spec:
               protocol: UDP
           volumeMounts:
             - name: postgres-pvc
-              mountPath: /var/lib/postgresql/data
+              mountPath: /var/lib/postgresql
       restartPolicy: Always
 
 ---
@@ -350,7 +349,7 @@ spec:
               protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime:5000
+              value: http://jaime-back:5000
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - name: jaime-agents-pvc
@@ -394,7 +393,7 @@ spec:
               protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime:5000
+              value: http://jaime-back:5000
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
@@ -438,7 +437,7 @@ spec:
               protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime:5000
+              value: http://jaime-back:5000
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
@@ -485,7 +484,7 @@ spec:
               protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime:5000
+              value: http://jaime-back:5000
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
