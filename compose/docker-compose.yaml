@@ -17,7 +17,7 @@ services:
         hostname: jaime-front
         image: ghcr.io/jaime-project/jaime-front:1.11.0
         environment:
-            - JAIME_URL=http://jaime-back:5000
+            - JAIME_URL=http://0.0.0.0:5000
         ports:
             - 8080:8080
 
