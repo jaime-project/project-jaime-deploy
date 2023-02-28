@@ -1,0 +1,432 @@
+####################################################
+# SECRETS
+####################################################
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: credentials-jaime
+  namespace: jaime
+type: Opaque 
+data: 
+  JAIME_USER: YWRtaW4=
+  JAIME_PASS: YWRtaW4=
+
+---
+
+####################################################
+# SERVICES
+####################################################
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-back
+  namespace: jaime
+  labels:
+    application: jaime
+    component: server
+spec:
+  selector:
+    app: jaime-back
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-front
+  namespace: jaime
+  labels:
+    application: jaime
+    component: frontend
+spec:
+  selector:
+    app: jaime-front
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-agent-kubernetes
+  namespace: jaime
+  labels:
+    application: jaime
+    component: agent
+spec:
+  ports:
+  - port: 7001
+    name: agent
+  selector:
+    app: jaime-agent-kubernetes
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-agent-pushgateway
+  namespace: jaime
+  labels:
+    application: jaime
+    component: agent
+spec:
+  ports:
+  - port: 7001
+    protocol: TCP
+    name: agent
+  - port: 9091
+    protocol: TCP
+    name: pushgateway
+  selector:
+    app: jaime-agent-pushgateway
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: jaime
+  labels:
+    application: jaime
+    component: db
+spec:
+  ports:
+  - port: 5432
+    protocol: TCP
+  selector:
+    app: postgres
+
+---
+
+####################################################
+# INGRESS
+####################################################
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jaime-back
+  namespace: jaime
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: jaime-back.minikube
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jaime-back
+            port:
+              number: 5000
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jaime-front
+  namespace: jaime
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: jaime-front.minikube
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jaime-front
+            port:
+              number: 8080
+
+--- 
+
+####################################################
+# DEPLOYMENTS
+####################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: jaime
+    component: server
+  name: jaime-back
+  namespace: jaime
+spec:
+  selector:
+    matchLabels:
+      app: jaime-back
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: jaime-back
+    spec:
+      volumes:
+        - name: jaime-pvc
+          persistentVolumeClaim:
+            claimName: jaime-pvc
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime
+          image: 'ghcr.io/jaime-project/jaime-back:1.12.0'
+          env:
+            - name: DB_URL
+              value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
+          envFrom:
+            - secretRef:
+                name: credentials-jaime
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+          volumeMounts:
+            - name: jaime-pvc
+              mountPath: /home/jaime/.jaime
+            - name: jaime-agents-pvc
+              mountPath: /shared
+      restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: jaime
+    component: frontend
+  name: jaime-front
+  namespace: jaime
+spec:
+  selector:
+    matchLabels:
+      app: jaime-front
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: jaime-front
+    spec:
+      containers:
+        - name: jaime
+          image: 'ghcr.io/jaime-project/jaime-front:1.12.0'
+          env:
+            - name: JAIME_URL
+              value: http://jaime-back.minikube
+          ports:
+            - containerPort: 5000
+          protocol: TCP
+      restartPolicy: Always
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: jaime
+    component: db
+  name: postgres
+  namespace: jaime
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      volumes:
+        - name: postgres-pvc
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+      containers:
+        - name: postgres
+          image: postgres:15
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: jaime
+          ports:
+            - containerPort: 5432
+              protocol: UDP
+          volumeMounts:
+            - name: postgres-pvc
+              mountPath: /var/lib/postgresql
+      restartPolicy: Always
+
+---
+
+####################################################
+# STATEFULSETS
+####################################################
+
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: jaime-agent-kubernetes
+    component: agent
+  name: jaime-agent-kubernetes
+  namespace: jaime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaime-agent-kubernetes
+  template:
+    metadata:
+      labels:
+        app: jaime-agent-kubernetes
+    spec:
+      volumes:
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime-agent-kubernetes
+          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:1.12.0'
+          ports:
+            - name: agent
+              containerPort: 7001
+              protocol: TCP
+          env:
+            - name: JAIME_URL
+              value: http://jaime-back:5000
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: jaime-agents-pvc
+              mountPath: /shared
+    restartPolicy: Always
+  serviceName: jaime-agent-kubernetes
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+
+---
+
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: jaime-agent-pushgateway
+    component: agent
+  name: jaime-agent-pushgateway
+  namespace: jaime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaime-agent-pushgateway
+  template:
+    metadata:
+      labels:
+        app: jaime-agent-pushgateway
+    spec:
+      volumes:
+        - name: jaime-agents-pvc
+          persistentVolumeClaim:
+            claimName: jaime-agents-pvc
+      containers:
+        - name: jaime-agent-base
+          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:1.12.0'
+          ports:
+            - name: agent
+              containerPort: 7001
+              protocol: TCP
+            - name: gateway
+              containerPort: 9091
+              protocol: TCP
+          env:
+            - name: JAIME_URL
+              value: http://jaime-back:5000
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: jaime-agents-pvc
+              mountPath: /shared
+    restartPolicy: Always
+  serviceName: jaime-agent-pushgateway
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+
+---
+
+####################################################
+# PVCs
+####################################################
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jaime-pvc
+  namespace: jaime
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jaime-agents-pvc
+  namespace: jaime
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+
+---
+
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pvc
+  namespace: jaime
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+
+---
