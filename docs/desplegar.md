@@ -85,7 +85,7 @@ kubectl create namespace jaime
 kubectl apply -f jaime.yaml
 ```
 
-Tener en cuenta que los ingress del front y el back apuntan a *jaime-front.minishift* y *jaime-back.minishift*, en caso de quere modificarla hay que modificar los ingress
+Tener en cuenta que los ingress del front y el back apuntan a *jaime-front.minikube* y *jaime-back.minikube*, en caso de quere modificarla hay que modificar los ingress
 
 Luego es necesario **cambiar la url a donde apunta el front**, para ello solo hay que cambiar la variable de ambiente del deployment jaime-front llamada JAIME_URL por la requerida
 
