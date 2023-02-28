@@ -119,12 +119,13 @@ metadata:
   name: jaime-back
   namespace: jaime
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - http:
+  - host: jaime-back.minikube
+    http:
       paths:
-      - path: /jaime-back
+      - path: /
         pathType: Prefix
         backend:
           service:
@@ -140,10 +141,11 @@ metadata:
   name: jaime-front
   namespace: jaime
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - http:
+  - host: jaime-front.minikube
+    http:
       paths:
       - path: /
         pathType: Prefix
@@ -232,7 +234,7 @@ spec:
           image: 'ghcr.io/jaime-project/jaime-front:1.12.0'
           env:
             - name: JAIME_URL
-              value: https://<jaime-route-url>/
+              value: http://jaime-back.minikube
           ports:
             - containerPort: 5000
           protocol: TCP
