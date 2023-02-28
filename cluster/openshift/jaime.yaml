@@ -1,4 +1,20 @@
 ####################################################
+# SECRETS
+####################################################
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: credentials-jaime
+  namespace: jaime
+type: Opaque 
+data: 
+  JAIME_USER: YWRtaW4=
+  JAIME_PASS: YWRtaW4=
+
+---
+
+####################################################
 # SERVICES
 ####################################################
 
@@ -191,6 +207,9 @@ spec:
           env:
             - name: DB_URL
               value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
+          envFrom:
+            - secretRef:
+                name: credentials-jaime
           ports:
             - containerPort: 5000
               protocol: TCP

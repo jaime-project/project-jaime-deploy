@@ -1,4 +1,20 @@
 ####################################################
+# SECRETS
+####################################################
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: credentials-jaime
+  namespace: jaime
+type: Opaque 
+data: 
+  JAIME_USER: YWRtaW4=
+  JAIME_PASS: YWRtaW4=
+
+---
+
+####################################################
 # SERVICES
 ####################################################
 
@@ -41,23 +57,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jaime-agent-base
-  namespace: jaime
-  labels:
-    application: jaime
-    component: agent
-spec:
-  ports:
-  - port: 7001
-    name: agent
-  selector:
-    app: jaime-agent-base
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
   name: jaime-agent-kubernetes
   namespace: jaime
   labels:
@@ -69,23 +68,6 @@ spec:
     name: agent
   selector:
     app: jaime-agent-kubernetes
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: jaime-agent-openshift
-  namespace: jaime
-  labels:
-    application: jaime
-    component: agent
-spec:
-  ports:
-  - port: 7001
-    name: agent
-  selector:
-    app: jaime-agent-openshift
 
 ---
 
@@ -128,65 +110,50 @@ spec:
 ---
 
 ####################################################
-# ROUTES
+# INGRESS
 ####################################################
 
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
-  name: jaime-front
-  namespace: jaime
-  labels:
-    application: jaime
-    component: frontend
-spec:
-  to:
-    name: jaime-front
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
-  wildcardPolicy: None
-
----
-
-kind: Route
-apiVersion: route.openshift.io/v1
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: jaime-back
   namespace: jaime
-  labels:
-    application: jaime
-    component: server
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
-  to:
-    name: jaime-back
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
-  wildcardPolicy: None
+  rules:
+  - http:
+      paths:
+      - path: /jaime-back
+        pathType: Prefix
+        backend:
+          service:
+            name: jaime-back
+            port:
+              number: 5000
 
 ---
 
-kind: Route
-apiVersion: route.openshift.io/v1
-id: jaime-pushgateway
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: jaime-pushgateway
+  name: jaime-front
   namespace: jaime
-  labels:
-    application: jaime
-    component: agent
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
-  to:
-    name: jaime-agent-pushgateway
-  port:
-    targetPort: pushgateway
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
-  wildcardPolicy: None
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jaime-front
+            port:
+              number: 8080
 
----
+--- 
 
 ####################################################
 # DEPLOYMENTS
@@ -225,6 +192,9 @@ spec:
           env:
             - name: DB_URL
               value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
+          envFrom:
+            - secretRef:
+                name: credentials-jaime
           ports:
             - containerPort: 5000
               protocol: TCP
@@ -322,50 +292,6 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   labels:
-    application: jaime-agent-openshift
-    component: agent
-  name: jaime-agent-openshift
-  namespace: jaime
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jaime-agent-openshift
-  template:
-    metadata:
-      labels:
-        app: jaime-agent-openshift
-    spec:
-      volumes:
-        - name: jaime-agents-pvc
-          persistentVolumeClaim:
-            claimName: jaime-agents-pvc
-      containers:
-        - name: jaime-agent-openshift
-          image: 'ghcr.io/jaime-project/jaime-agent-openshift:1.12.0'
-          ports:
-            - name: agent
-              containerPort: 7001
-              protocol: TCP
-          env:
-            - name: JAIME_URL
-              value: http://jaime-back:5000
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-          - name: jaime-agents-pvc
-            mountPath: /shared
-      restartPolicy: Always
-  serviceName: jaime-agent-openshift
-  podManagementPolicy: OrderedReady
-  updateStrategy:
-    type: RollingUpdate
-
----
-
-kind: StatefulSet
-apiVersion: apps/v1
-metadata:
-  labels:
     application: jaime-agent-kubernetes
     component: agent
   name: jaime-agent-kubernetes
@@ -400,50 +326,6 @@ spec:
               mountPath: /shared
     restartPolicy: Always
   serviceName: jaime-agent-kubernetes
-  podManagementPolicy: OrderedReady
-  updateStrategy:
-    type: RollingUpdate
-
----
-
-kind: StatefulSet
-apiVersion: apps/v1
-metadata:
-  labels:
-    application: jaime-agent-base
-    component: agent
-  name: jaime-agent-base
-  namespace: jaime
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jaime-agent-base
-  template:
-    metadata:
-      labels:
-        app: jaime-agent-base
-    spec:
-      volumes:
-        - name: jaime-agents-pvc
-          persistentVolumeClaim:
-            claimName: jaime-agents-pvc
-      containers:
-        - name: jaime-agent-base
-          image: 'ghcr.io/jaime-project/jaime-agent:1.12.0'
-          ports:
-            - name: agent
-              containerPort: 7001
-              protocol: TCP
-          env:
-            - name: JAIME_URL
-              value: http://jaime-back:5000
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - name: jaime-agents-pvc
-              mountPath: /shared
-    restartPolicy: Always
-  serviceName: jaime-agent-base
   podManagementPolicy: OrderedReady
   updateStrategy:
     type: RollingUpdate
