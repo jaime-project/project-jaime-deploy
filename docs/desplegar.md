@@ -57,21 +57,37 @@ podman-compose down
 
 * Openshift 4
 
-### Uso de template
+### Despliegue con archivo yaml openshift
 
-Previamente se debe estar logueado al cluster con el comando `oc login`
-
-Dentro de la carpeta openshift
+Dentro de la carpeta de cluster/openshift
 
 ```sh
-make j
+oc create new-project jaime
+
+oc apply -f jaime.yaml
 ```
 
-### Despliegue con archivo yaml
+Luego es necesario **cambiar la url a donde apunta el front**, para ello solo hay que cambiar la variable de ambiente del deployment jaime-front llamada JAIME_URL por la generada por el route de jaime-back
+
+## Kubernetes
+
+### Requisitos Kubernetes
+
+* Kubernetes v1.26.1
+
+### Despliegue con archivo yaml kubernetes
+
+Dentro de la carpeta de cluster/kubernetes
 
 ```sh
-oc apply -f https://raw.githubusercontent.com/jaime-project/project-jaime-deploy/master/openshift/jaime.yaml
+kubectl create namespace jaime
+
+kubectl apply -f jaime.yaml
 ```
+
+Tener en cuenta que los ingress del front y el back apuntan a *jaime-front.minishift* y *jaime-back.minishift*, en caso de quere modificarla hay que modificar los ingress
+
+Luego es necesario **cambiar la url a donde apunta el front**, para ello solo hay que cambiar la variable de ambiente del deployment jaime-front llamada JAIME_URL por la requerida
 
 ---
 
