@@ -6,26 +6,25 @@ services:
         image: docker.io/library/postgres:15.1
         container_name: postgres
         environment:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: jaime
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=jaime
         volumes:
             - postgres:/var/lib/postgresql/data:rw
-        ports:
-            - 5432:5432
+        network_mode: host
 
     jaime-back:
         container_name: jaime-back
         image: ghcr.io/jaime-project/jaime-back:1.12.0
         environment:
-            DB_URL: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
-            JAIME_USER: admin
-            JAIME_PASS: admin
+            - DB_URL=postgresql+pg8000://postgres:postgres@localhost:5432/jaime
+            - JAIME_USER=admin
+            - JAIME_PASS=admin
+            - PYTHON_PORT=5000
         volumes:
             - jaime:/home/jaime/.jaime:rw
             - shared:/shared:rw
-        ports:
-            - 5000:5000
+        network_mode: host
         depends_on:
             - postgres
 
@@ -34,18 +33,17 @@ services:
         image: ghcr.io/jaime-project/jaime-front:1.12.0
         environment:
             - JAIME_URL=http://localhost:5000
-        ports:
-            - 8080:8080
+        network_mode: host
 
     agent1:
         container_name: agent1
         image: ghcr.io/jaime-project/jaime-agent:1.12.0
         environment:
-            - JAIME_URL=http://jaime-back:5000
+            - JAIME_URL=http://localhost:5000
+            - PYTHON_PORT=7001
         volumes:
             - shared:/shared
-        ports:
-            - 7001:7001
+        network_mode: host
         depends_on:
             - jaime-back
 
@@ -53,11 +51,11 @@ services:
         container_name: agent2
         image: ghcr.io/jaime-project/jaime-agent-kubernetes:1.12.0
         environment:
-            - JAIME_URL=http://jaime-back:5000
+            - JAIME_URL=http://localhost:5000
+            - PYTHON_PORT=7002
         volumes:
             - shared:/shared
-        ports:
-            - 7002:7001
+        network_mode: host
         depends_on:
             - jaime-back
 
@@ -65,11 +63,11 @@ services:
         container_name: agent3
         image: ghcr.io/jaime-project/jaime-agent-openshift:1.12.0
         environment:
-            - JAIME_URL=http://jaime-back:5000
+            - JAIME_URL=http://localhost:5000
+            - PYTHON_PORT=7003
         volumes:
             - shared:/shared
-        ports:
-            - 7003:7001
+        network_mode: host
         depends_on:
             - jaime-back
 
@@ -77,12 +75,11 @@ services:
         container_name: agent4
         image: ghcr.io/jaime-project/jaime-agent-pushgateway:1.12.0
         environment:
-            - JAIME_URL=http://jaime-back:5000
+            - JAIME_URL=http://localhost:5000
+            - PYTHON_PORT=7004
         volumes:
             - shared:/shared
-        ports:
-            - 7004:7001
-            - 9091:9091
+        network_mode: host
         depends_on:
             - jaime-back
 
