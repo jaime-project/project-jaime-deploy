@@ -14,6 +14,18 @@ data:
 
 ---
 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: credentials-postgres
+  namespace: jaime
+type: Opaque 
+data: 
+  POSTGRES_USER: cG9zdGdyZXM=
+  POSTGRES_PASSWORD: cG9zdGdyZXM=
+
+---
+
 ####################################################
 # SERVICES
 ####################################################
@@ -218,7 +230,7 @@ spec:
               mountPath: /home/jaime/.jaime
             - name: jaime-agents-pvc
               mountPath: /shared
-      restartPolicy: Always
+      
 
 ---
 
@@ -251,7 +263,7 @@ spec:
           ports:
             - containerPort: 5000
           protocol: TCP
-      restartPolicy: Always
+      
 
 ---
 
@@ -281,21 +293,20 @@ spec:
             claimName: postgres-pvc
       containers:
         - name: postgres
-          image: postgres:15
+          image: docker.io/library/postgres:15
           env:
-            - name: POSTGRES_USER
-              value: postgres
-            - name: POSTGRES_PASSWORD
-              value: postgres
             - name: POSTGRES_DB
               value: jaime
+          envFrom:
+            - secretRef:
+                name: credentials-postgres
           ports:
             - containerPort: 5432
               protocol: UDP
           volumeMounts:
             - name: postgres-pvc
               mountPath: /var/lib/postgresql
-      restartPolicy: Always
+      
 
 ---
 
@@ -339,7 +350,7 @@ spec:
           volumeMounts:
           - name: jaime-agents-pvc
             mountPath: /shared
-      restartPolicy: Always
+      
   serviceName: jaime-agent-openshift
   podManagementPolicy: OrderedReady
   updateStrategy:
@@ -386,7 +397,7 @@ spec:
           volumeMounts:
             - name: jaime-agents-pvc
               mountPath: /shared
-    restartPolicy: Always
+    
   serviceName: jaime-agent-pushgateway
   podManagementPolicy: OrderedReady
   updateStrategy:
@@ -436,7 +447,7 @@ metadata:
   namespace: jaime
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi

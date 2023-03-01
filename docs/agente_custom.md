@@ -13,7 +13,7 @@ FROM ghcr.io/jaime-project/jaime-agent:1.12.0
 ENV AGENT_TYPE=TU_TIPO_DE_AGENTE
 ```
 
-La imagen se basa en **python:3.9-slim**
+La imagen se basa en **python:3.10-slim**
 
 ### Ejemplo de agente custom para OPENSHIFT
 

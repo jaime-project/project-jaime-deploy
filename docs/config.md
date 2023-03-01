@@ -8,11 +8,12 @@
 
 ### Apuntar el front al back
 
-Es necesario actualizar el valor de una variable para apuntar al back
+Es necesario actualizar el valor de una variable de ambiente para apuntar al back
 
 ```yaml
 JAIME_URL: http://tu_jaime_backend/
 ```
+
 ---
 
 ## jaime-back
@@ -32,8 +33,9 @@ DB_URL: postgresql+pg8000://user:pass@host:port/database
 DB_URL: mssql+pymssql://user:pass@host:port/database
 ```
 
----
+En caso de que esta variable de ambiente no este se usara **sqlite**
 
+---
 
 ## :leftwards_arrow_with_hook: Navegar
 

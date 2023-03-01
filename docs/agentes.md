@@ -26,6 +26,7 @@ resultado = tools.sh('echo "hola mundo redondo"')
 | login_openshift   | **cluster_name**: str                                                                         | bool                  | Logea en openshift y devuelve true si se pudo loguear     |
 | login_kubernetes  | **cluster_name**: str                                                                         | bool                  | Logea en kubernetes y devuelve true si se pudo loguear    |
 | new_jaime_job    | **repo_name**: str, **module_name**: str, **agent_type**: str, **params**: Dict[str, object] = {}, **name**: str = uuid4() | str                   | Ejecuta una tarea en Jaime, devuelve el id del work creado |
+| new_message    | **title**: str, **subject**: str, **body**: str, **files**: List[str] = [] | str                   | Genera un mensaje en Jaime. Para los arhivos adjuntos es requerido que se utilice las rutas relativas iguales a como se las usa en el script |
 
 ---
 
@@ -38,21 +39,27 @@ import tools
 
 resultado = tools.sh(cmd='ls', echo=False)
 
-# ...
-# yaml de parametros
-#
-# algo:
-#   variable: 'hola mundo'
-# ...
+# PARAMETROS
 parametros = tools.get_params()
 variable = parametros['algo']['variable']
 
-id_job = new_jaime_job('repositorio', 'modulo_prueba', 'OPENSHIFT', {
+
+# NUEVO JOB
+id_job = tools.new_jaime_job('repositorio', 'modulo_prueba', 'OPENSHIFT', {
     'algo': {
-        'variable': 'hola mundo redondo'
+        'variable': variable
     }
 }, 'nombre_del_job')
+
+
+# CREACION DE MENSAJE
+tools.sh('mkdir files')
+tools.sh('echo "hola mundo" > files/archivo.txt')
+id_message = tools.new_message('titulo', 'sub titulo', 'Soy un mensaje muy feliz :)', ['files/archivo.txt'])
+
 ```
+
+Para mas ejemplos se puede consultar el repositorio de scripts creados para Jaime [en este link](https://github.com/jaime-project/repo-jaime-modules)
 
 ---
 
