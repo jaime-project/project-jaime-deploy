@@ -4,40 +4,19 @@
 
 ---
 
-## Podman / podman-host
+## Local
 
-### Requisitos podman
+### podman-compose o docker-compose
 
-* podman 4.1.1
-
-### Uso podman
-
-Dentro de la carpeta de podman
-
-```sh
-make r
-```
-
-Para bajarlo
-
-```sh
-make k
-```
-
-En caso de que tenga algun error
-
-```sh
-make c
-```
-
-## Podman-compose
-
-### Requisitos podman-compose
+#### Requisitos
 
 * podman 4.1.1
-* podman-compose 1.0.3
+  * podman-compose 1.0.3
+* docker 23.0.1
+  * doker compose (plugin)
+  * docker-compose
 
-### Uso podman-compose
+#### Uso
 
 Dentro de la carpeta de podman-compose
 
@@ -51,13 +30,17 @@ Para bajarlo
 podman-compose down
 ```
 
-## Openshift
+---
 
-### Requisitos Openshift
+## Cluster
+
+### Openshift
+
+#### Requisitos Openshift
 
 * Openshift 4
 
-### Despliegue con archivo yaml openshift
+#### Despliegue con archivo yaml openshift
 
 Dentro de la carpeta de cluster/openshift
 
@@ -67,15 +50,15 @@ oc create new-project jaime
 oc apply -f jaime.yaml
 ```
 
-Luego es necesario **cambiar la url a donde apunta el front**, para ello solo hay que cambiar la variable de ambiente del deployment jaime-front llamada JAIME_URL por la generada por el route de jaime-back
+Luego es necesario **cambiar la url del back en el front**, para ello solo hay que cambiar la variable de ambiente del deployment jaime-front llamada JAIME_URL por la generada por el route de jaime-back
 
-## Kubernetes
+### Kubernetes
 
-### Requisitos Kubernetes
+#### Requisitos Kubernetes
 
 * Kubernetes v1.26.1
 
-### Despliegue con archivo yaml kubernetes
+#### Despliegue con archivo yaml kubernetes
 
 Dentro de la carpeta de cluster/kubernetes
 
@@ -87,7 +70,7 @@ kubectl apply -f jaime.yaml
 
 Tener en cuenta que los ingress del front y el back apuntan a *jaime-front.minikube* y *jaime-back.minikube*, en caso de quere modificarla hay que modificar los ingress
 
-Luego es necesario **cambiar la url a donde apunta el front**, para ello solo hay que cambiar la variable de ambiente del deployment jaime-front llamada JAIME_URL por la requerida
+Luego es necesario **cambiar la url del back en el front**, para ello solo hay que cambiar la variable de ambiente del deployment jaime-front llamada JAIME_URL por la requerida
 
 ---
 

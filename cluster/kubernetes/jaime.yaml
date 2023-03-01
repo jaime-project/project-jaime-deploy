@@ -14,6 +14,18 @@ data:
 
 ---
 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: credentials-postgres
+  namespace: jaime
+type: Opaque 
+data: 
+  POSTGRES_USER: cG9zdGdyZXM=
+  POSTGRES_PASSWORD: cG9zdGdyZXM=
+
+---
+
 ####################################################
 # SERVICES
 ####################################################
@@ -174,8 +186,6 @@ spec:
     matchLabels:
       app: jaime-back
   replicas: 1
-  strategy:
-    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -205,7 +215,6 @@ spec:
               mountPath: /home/jaime/.jaime
             - name: jaime-agents-pvc
               mountPath: /shared
-      restartPolicy: Always
 
 ---
 
@@ -222,8 +231,6 @@ spec:
     matchLabels:
       app: jaime-front
   replicas: 1
-  strategy:
-    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -237,8 +244,6 @@ spec:
               value: http://jaime-back.minikube
           ports:
             - containerPort: 5000
-          protocol: TCP
-      restartPolicy: Always
 
 ---
 
@@ -255,8 +260,6 @@ spec:
     matchLabels:
       app: postgres
   replicas: 1
-  strategy:
-    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -268,21 +271,19 @@ spec:
             claimName: postgres-pvc
       containers:
         - name: postgres
-          image: postgres:15
+          image: docker.io/library/postgres:15
           env:
-            - name: POSTGRES_USER
-              value: postgres
-            - name: POSTGRES_PASSWORD
-              value: postgres
             - name: POSTGRES_DB
               value: jaime
+          envFrom:
+            - secretRef:
+                name: credentials-postgres
           ports:
             - containerPort: 5432
               protocol: UDP
           volumeMounts:
             - name: postgres-pvc
               mountPath: /var/lib/postgresql
-      restartPolicy: Always
 
 ---
 
@@ -326,7 +327,6 @@ spec:
           volumeMounts:
             - name: jaime-agents-pvc
               mountPath: /shared
-    restartPolicy: Always
   serviceName: jaime-agent-kubernetes
   podManagementPolicy: OrderedReady
   updateStrategy:
@@ -373,7 +373,6 @@ spec:
           volumeMounts:
             - name: jaime-agents-pvc
               mountPath: /shared
-    restartPolicy: Always
   serviceName: jaime-agent-pushgateway
   podManagementPolicy: OrderedReady
   updateStrategy:
@@ -423,7 +422,7 @@ metadata:
   namespace: jaime
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
