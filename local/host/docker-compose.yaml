@@ -22,7 +22,7 @@ services:
             - JAIME_PASS=admin
             - PYTHON_PORT=5000
         volumes:
-            - jaime:/home/jaime/.jaime:rw
+            - jaime:/jaime:rw
             - shared:/shared:rw
         network_mode: host
         depends_on:
