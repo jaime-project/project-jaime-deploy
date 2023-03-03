@@ -226,6 +226,8 @@ spec:
           env:
             - name: DB_URL
               value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
+            - name: JAIME_HOME_PATH
+              value: /jaime
           envFrom:
             - secretRef:
                 name: credentials-jaime
@@ -234,7 +236,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: jaime-pvc
-              mountPath: /home/jaime/.jaime
+              mountPath: /jaime
             - name: jaime-agents-pvc
               mountPath: /shared
       

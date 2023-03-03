@@ -22,7 +22,7 @@ services:
             JAIME_USER: admin
             JAIME_PASS: admin
         volumes:
-            - jaime:/home/jaime/.jaime:rw
+            - jaime:/jaime:rw
             - shared:/shared:rw
         ports:
             - 5000:5000
