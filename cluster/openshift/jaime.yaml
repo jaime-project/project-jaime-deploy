@@ -215,7 +215,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-back:1.12.0'
+          image: 'ghcr.io/jaime-project/jaime-back:1.13.0'
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -227,7 +227,7 @@ spec:
             - name: DB_URL
               value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
             - name: JAIME_HOME_PATH
-              value: /jaime
+              value: /home/jaime/.jaime
           envFrom:
             - secretRef:
                 name: credentials-jaime
@@ -236,9 +236,9 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: jaime-pvc
-              mountPath: /jaime
+              mountPath: /home/jaime/.jaime
             - name: jaime-agents-pvc
-              mountPath: /shared
+              mountPath: /home/jaime/.shared/
       
 
 ---
@@ -265,7 +265,7 @@ spec:
     spec:
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-front:1.12.0'
+          image: 'ghcr.io/jaime-project/jaime-front:1.13.0'
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
@@ -361,7 +361,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-openshift
-          image: 'ghcr.io/jaime-project/jaime-agent-openshift:1.12.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-openshift:1.13.0'
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
@@ -379,7 +379,7 @@ spec:
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - name: jaime-agents-pvc
-            mountPath: /shared
+            mountPath: /home/jaime/.shared/
       
   serviceName: jaime-agent-openshift
   podManagementPolicy: OrderedReady
@@ -412,7 +412,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-base
-          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:1.12.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:1.13.0'
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
@@ -433,7 +433,7 @@ spec:
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: jaime-agents-pvc
-              mountPath: /shared
+              mountPath: /home/jaime/.shared/
     
   serviceName: jaime-agent-pushgateway
   podManagementPolicy: OrderedReady
