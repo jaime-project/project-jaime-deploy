@@ -200,7 +200,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-back:1.13.0'
+          image: 'ghcr.io/jaime-project/jaime-back:0.1.0'
           env:
             - name: DB_URL
               value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
@@ -240,7 +240,7 @@ spec:
     spec:
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-front:1.13.0'
+          image: 'ghcr.io/jaime-project/jaime-front:0.1.0'
           env:
             - name: JAIME_URL
               value: http://jaime-back.minikube
@@ -317,7 +317,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-kubernetes
-          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:1.13.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-kubernetes:0.1.0'
           ports:
             - name: agent
               containerPort: 7001
@@ -360,7 +360,7 @@ spec:
             claimName: jaime-agents-pvc
       containers:
         - name: jaime-agent-base
-          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:1.13.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:0.1.0'
           ports:
             - name: agent
               containerPort: 7001
