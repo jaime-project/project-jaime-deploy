@@ -69,7 +69,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jaime-agent-openshift
+  name: jaime-agent-cluster
   namespace: jaime
   labels:
     application: jaime
@@ -79,7 +79,7 @@ spec:
   - port: 7001
     name: agent
   selector:
-    app: jaime-agent-openshift
+    app: jaime-agent-cluster
 
 ---
 
@@ -341,27 +341,27 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   labels:
-    application: jaime-agent-openshift
+    application: jaime-agent-cluster
     component: agent
-  name: jaime-agent-openshift
+  name: jaime-agent-cluster
   namespace: jaime
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: jaime-agent-openshift
+      app: jaime-agent-cluster
   template:
     metadata:
       labels:
-        app: jaime-agent-openshift
+        app: jaime-agent-cluster
     spec:
       volumes:
         - name: jaime-agents-pvc
           persistentVolumeClaim:
             claimName: jaime-agents-pvc
       containers:
-        - name: jaime-agent-openshift
-          image: 'ghcr.io/jaime-project/jaime-agent-openshift:0.1.0'
+        - name: jaime-agent-cluster
+          image: 'ghcr.io/jaime-project/jaime-agent-cluster:0.1.0'
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
@@ -381,7 +381,7 @@ spec:
           - name: jaime-agents-pvc
             mountPath: /home/jaime/.shared/
       
-  serviceName: jaime-agent-openshift
+  serviceName: jaime-agent-cluster
   podManagementPolicy: OrderedReady
   updateStrategy:
     type: RollingUpdate
