@@ -2,75 +2,76 @@ version: "3.8"
 
 services:
 
-    postgres:
-        container_name: postgres
-        hostname: postgres
+    jaime-postgres:
+        container_name: jaime-postgres
+        hostname: jaime-postgres
         image: docker.io/library/postgres:15.1
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
             POSTGRES_DB: jaime
         volumes:
-            - postgres:/var/lib/postgresql/data:rw
-        ports:
-            - 5432:5432
+            - jaime-postgres:/var/lib/postgresql/data:rw
+        expose:
+            - 5432
 
     jaime-back:
         container_name: jaime-back
         hostname: jaime-back
-        image: ghcr.io/jaime-project/jaime-back:0.1.0
+        image: ghcr.io/jaime-project/jaime-back:0.3.0
         environment:
-            DB_URL: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
+            DB_URL: postgresql+pg8000://postgres:postgres@jaime-postgres:5432/jaime
             JAIME_USER: admin
             JAIME_PASS: admin
         volumes:
-            - jaime:/home/jaime/.jaime/:rw
-            - shared:/home/jaime/.shared/:rw
+            - jaime:/home/jaime/local/:rw
+            - shared:/home/jaime/shared/:rw
         ports:
             - 5000:5000
         depends_on:
-            - postgres
+            - jaime-postgres
 
     jaime-front:
         container_name: jaime-front
         hostname: jaime-front
-        image: ghcr.io/jaime-project/jaime-front:0.1.0
+        image: ghcr.io/jaime-project/jaime-front:0.3.0
         environment:
             - JAIME_URL=http://localhost:5000
         ports:
             - 8080:8080
+        depends_on:
+            - jaime-back
 
     agent-cluster:
-        container_name: agent-cluster
-        hostname: agent-cluster
-        image: ghcr.io/jaime-project/jaime-agent-cluster:0.1.0
+        image: ghcr.io/jaime-project/jaime-agent-cluster:0.3.0
         environment:
             - JAIME_URL=http://jaime-back:5000
         volumes:
-            - shared:/home/jaime/.shared/:rw
-        ports:
-            - 7001:7001
+            - shared:/home/jaime/shared/:rw
+        expose:
+            - 7001
         depends_on:
             - jaime-back
-
+        deploy:
+            replicas: 1
+            
     agent-pushgateway:
-        container_name: agent-pushgateway
-        hostname: agent-pushgateway
-        image: ghcr.io/jaime-project/jaime-agent-pushgateway:0.1.0
+        image: ghcr.io/jaime-project/jaime-agent-pushgateway:0.3.0
         environment:
             - JAIME_URL=http://jaime-back:5000
         volumes:
-            - shared:/home/jaime/.shared/:rw
-        ports:
-            - 7002:7001
-            - 9091:9091
+            - shared:/home/jaime/shared/:rw
+        expose:
+            - 7001
         depends_on:
             - jaime-back
+        deploy:
+            replicas: 1
 
 volumes:
     jaime:
         external: false
     shared:
         external: false
-    postgres:
+    jaime-postgres:
         external: false
