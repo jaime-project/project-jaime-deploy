@@ -9,7 +9,7 @@
 Es necesario definir lo siguiente para que funcione
 
 ```dockerfile
-FROM ghcr.io/jaime-project/jaime-agent:0.3.0
+FROM ghcr.io/jaime-project/jaime-agent:0.4.0
 ENV AGENT_TYPE=TU_TIPO_DE_AGENTE
 ```
 
@@ -18,7 +18,7 @@ La imagen se basa en **python:3.10-slim**
 ### Ejemplo de agente custom para OPENSHIFT
 
 ```dockerfile
-FROM ghcr.io/jaime-project/jaime-agent:0.3.0
+FROM ghcr.io/jaime-project/jaime-agent:0.4.0
 ENV AGENT_TYPE=OPENSHIFT
 
 COPY resources/oc.tar.gz . 
@@ -34,7 +34,7 @@ ENV PATH="$HOME:$PATH"
 Se utiliza la siguiente variable para correr un comando ademas del agente
 
 ```dockerfile
-FROM ghcr.io/jaime-project/jaime-agent:0.3.0
+FROM ghcr.io/jaime-project/jaime-agent:0.4.0
 ENV AGENT_TYPE=TU_TIPO_DE_AGENTE
 ENV EXTRA_CMD="tu comando a ejecutar"
 ```
@@ -48,7 +48,7 @@ CMD ${EXTRA_CMD} & python3 -m gunicorn -b ${PYTHON_HOST}:${PYTHON_PORT} --worker
 ### Ejemplo de agente custom para servidor de pushgateway
 
 ```dockerfile
-FROM ghcr.io/jaime-project/jaime-agent:0.3.0
+FROM ghcr.io/jaime-project/jaime-agent:0.4.0
 ENV AGENT_TYPE=PUSHGATEWAY
 ENV EXTRA_CMD="pushgateway"
 
