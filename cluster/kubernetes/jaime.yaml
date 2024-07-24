@@ -69,44 +69,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jaime-agent-cluster
-  namespace: jaime
-  labels:
-    application: jaime
-    component: agent
-spec:
-  ports:
-  - port: 7001
-    name: agent
-  selector:
-    app: jaime-agent-cluster
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: jaime-agent-pushgateway
-  namespace: jaime
-  labels:
-    application: jaime
-    component: agent
-spec:
-  ports:
-  - port: 7001
-    protocol: TCP
-    name: agent
-  - port: 9091
-    protocol: TCP
-    name: pushgateway
-  selector:
-    app: jaime-agent-pushgateway
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
   name: postgres
   namespace: jaime
   labels:
@@ -122,52 +84,65 @@ spec:
 ---
 
 ####################################################
-# INGRESS
+# ROUTES
 ####################################################
 
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: jaime-back
-  namespace: jaime
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-  - host: jaime-back.minikube
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: jaime-back
-            port:
-              number: 5000
-
----
-
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+kind: Route
+apiVersion: route.openshift.io/v1
 metadata:
   name: jaime-front
   namespace: jaime
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    application: jaime
+    component: frontend
 spec:
-  rules:
-  - host: jaime-front.minikube
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: jaime-front
-            port:
-              number: 8080
+  to:
+    name: jaime-front
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
 
---- 
+---
+
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: jaime-back
+  namespace: jaime
+  labels:
+    application: jaime
+    component: server
+spec:
+  to:
+    name: jaime-back
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
+
+kind: Route
+apiVersion: route.openshift.io/v1
+id: jaime-pushgateway
+metadata:
+  name: jaime-pushgateway
+  namespace: jaime
+  labels:
+    application: jaime
+    component: agent
+spec:
+  to:
+    name: jaime-agent-pushgateway
+  port:
+    targetPort: pushgateway
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
 
 ####################################################
 # DEPLOYMENTS
@@ -195,17 +170,14 @@ spec:
         - name: jaime-pvc
           persistentVolumeClaim:
             claimName: jaime-pvc
-        - name: jaime-agents-pvc
-          persistentVolumeClaim:
-            claimName: jaime-agents-pvc
       containers:
         - name: jaime
           image: 'ghcr.io/jaime-project/jaime-back:0.4.0'
+          securityContext:
+            runAsNonRoot: true
           env:
             - name: DB_URL
               value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
-            - name: JAIME_HOME_PATH
-              value: /home/jaime/local
           envFrom:
             - secretRef:
                 name: credentials-jaime
@@ -214,9 +186,8 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: jaime-pvc
-              mountPath: /home/jaime/local
-            - name: jaime-agents-pvc
-              mountPath: /home/jaime/shared
+              mountPath: /home/jaime/
+      
 
 ---
 
@@ -241,11 +212,15 @@ spec:
       containers:
         - name: jaime
           image: 'ghcr.io/jaime-project/jaime-front:0.4.0'
+          securityContext:
+            runAsNonRoot: true
           env:
             - name: JAIME_URL
-              value: http://jaime-back.minikube
+              value: https://<jaime-route-url>/
           ports:
-            - containerPort: 5000
+            - containerPort: 8080
+          protocol: TCP
+      
 
 ---
 
@@ -286,99 +261,84 @@ spec:
           volumeMounts:
             - name: postgres-pvc
               mountPath: /var/lib/postgresql
+      
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: jaime
+    component: agent
+  name: jaime-agent
+  namespace: jaime
+spec:
+  selector:
+    matchLabels:
+      app: jaime-agent
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jaime-agent
+    spec:
+      volumes:
+        - name: jaime-pvc
+          persistentVolumeClaim:
+            claimName: jaime-pvc
+      containers:
+        - name: jaime
+          image: 'ghcr.io/jaime-project/jaime-agent:0.4.0'
+          securityContext:
+            runAsNonRoot: true
+          env:
+            - name: JAIME_URL
+              value: http://jaime-back:5000/
+          ports:
+            - containerPort: 7001
+              protocol: TCP
+          volumeMounts:
+            - name: jaime-pvc
+              mountPath: /home/jaime/
 
 ---
 
-####################################################
-# STATEFULSETS
-####################################################
-
-kind: StatefulSet
 apiVersion: apps/v1
+kind: Deployment
 metadata:
   labels:
-    application: jaime-agent-cluster
+    application: jaime
     component: agent
   name: jaime-agent-cluster
   namespace: jaime
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: jaime-agent-cluster
+  replicas: 1
   template:
     metadata:
       labels:
         app: jaime-agent-cluster
     spec:
       volumes:
-        - name: jaime-agents-pvc
+        - name: jaime-pvc
           persistentVolumeClaim:
-            claimName: jaime-agents-pvc
+            claimName: jaime-pvc
       containers:
-        - name: jaime-agent-cluster
+        - name: jaime
           image: 'ghcr.io/jaime-project/jaime-agent-cluster:0.4.0'
-          ports:
-            - name: agent
-              containerPort: 7001
-              protocol: TCP
+          securityContext:
+            runAsNonRoot: true
           env:
             - name: JAIME_URL
-              value: http://jaime-back:5000
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - name: jaime-agents-pvc
-              mountPath: /home/jaime/shared
-  serviceName: jaime-agent-cluster
-  podManagementPolicy: OrderedReady
-  updateStrategy:
-    type: RollingUpdate
-
----
-
-kind: StatefulSet
-apiVersion: apps/v1
-metadata:
-  labels:
-    application: jaime-agent-pushgateway
-    component: agent
-  name: jaime-agent-pushgateway
-  namespace: jaime
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jaime-agent-pushgateway
-  template:
-    metadata:
-      labels:
-        app: jaime-agent-pushgateway
-    spec:
-      volumes:
-        - name: jaime-agents-pvc
-          persistentVolumeClaim:
-            claimName: jaime-agents-pvc
-      containers:
-        - name: jaime-agent-base
-          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:0.4.0'
+              value: http://jaime-back:5000/
           ports:
-            - name: agent
-              containerPort: 7001
+            - containerPort: 7001
               protocol: TCP
-            - name: gateway
-              containerPort: 9091
-              protocol: TCP
-          env:
-            - name: JAIME_URL
-              value: http://jaime-back:5000
-          imagePullPolicy: IfNotPresent
           volumeMounts:
-            - name: jaime-agents-pvc
-              mountPath: /home/jaime/shared
-  serviceName: jaime-agent-pushgateway
-  podManagementPolicy: OrderedReady
-  updateStrategy:
-    type: RollingUpdate
+            - name: jaime-pvc
+              mountPath: /home/jaime/
 
 ---
 
@@ -393,21 +353,6 @@ metadata:
   namespace: jaime
 spec:
   accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  volumeMode: Filesystem
-
----
-
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: jaime-agents-pvc
-  namespace: jaime
-spec:
-  accessModes:
     - ReadWriteMany
   resources:
     requests:
@@ -415,7 +360,6 @@ spec:
   volumeMode: Filesystem
 
 ---
-
 
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -427,7 +371,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
   volumeMode: Filesystem
 
 ---

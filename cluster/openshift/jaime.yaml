@@ -69,44 +69,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: jaime-agent-cluster
-  namespace: jaime
-  labels:
-    application: jaime
-    component: agent
-spec:
-  ports:
-  - port: 7001
-    name: agent
-  selector:
-    app: jaime-agent-cluster
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: jaime-agent-pushgateway
-  namespace: jaime
-  labels:
-    application: jaime
-    component: agent
-spec:
-  ports:
-  - port: 7001
-    protocol: TCP
-    name: agent
-  - port: 9091
-    protocol: TCP
-    name: pushgateway
-  selector:
-    app: jaime-agent-pushgateway
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
   name: postgres
   namespace: jaime
   labels:
@@ -199,8 +161,6 @@ spec:
     matchLabels:
       app: jaime-back
   replicas: 1
-  strategy:
-    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -210,24 +170,14 @@ spec:
         - name: jaime-pvc
           persistentVolumeClaim:
             claimName: jaime-pvc
-        - name: jaime-agents-pvc
-          persistentVolumeClaim:
-            claimName: jaime-agents-pvc
       containers:
         - name: jaime
           image: 'ghcr.io/jaime-project/jaime-back:0.4.0'
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop: ["ALL"]
             runAsNonRoot: true
-            seccompProfile:
-              type: RuntimeDefault
           env:
             - name: DB_URL
               value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
-            - name: JAIME_HOME_PATH
-              value: /home/jaime/local
           envFrom:
             - secretRef:
                 name: credentials-jaime
@@ -236,9 +186,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: jaime-pvc
-              mountPath: /home/jaime/local
-            - name: jaime-agents-pvc
-              mountPath: /home/jaime/shared/
+              mountPath: /home/jaime/
       
 
 ---
@@ -256,8 +204,6 @@ spec:
     matchLabels:
       app: jaime-front
   replicas: 1
-  strategy:
-    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -267,17 +213,12 @@ spec:
         - name: jaime
           image: 'ghcr.io/jaime-project/jaime-front:0.4.0'
           securityContext:
-            allowPrivilegeEscalation: false
             runAsNonRoot: true
-            capabilities:
-              drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
           env:
             - name: JAIME_URL
               value: https://<jaime-route-url>/
           ports:
-            - containerPort: 5000
+            - containerPort: 8080
           protocol: TCP
       
 
@@ -296,8 +237,6 @@ spec:
     matchLabels:
       app: postgres
   replicas: 1
-  strategy:
-    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -310,13 +249,6 @@ spec:
       containers:
         - name: postgres
           image: docker.io/library/postgres:15
-          securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            capabilities:
-              drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
           env:
             - name: POSTGRES_DB
               value: jaime
@@ -330,115 +262,83 @@ spec:
             - name: postgres-pvc
               mountPath: /var/lib/postgresql
       
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    application: jaime
+    component: agent
+  name: jaime-agent
+  namespace: jaime
+spec:
+  selector:
+    matchLabels:
+      app: jaime-agent
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jaime-agent
+    spec:
+      volumes:
+        - name: jaime-pvc
+          persistentVolumeClaim:
+            claimName: jaime-pvc
+      containers:
+        - name: jaime
+          image: 'ghcr.io/jaime-project/jaime-agent:0.4.0'
+          securityContext:
+            runAsNonRoot: true
+          env:
+            - name: JAIME_URL
+              value: http://jaime-back:5000/
+          ports:
+            - containerPort: 7001
+              protocol: TCP
+          volumeMounts:
+            - name: jaime-pvc
+              mountPath: /home/jaime/
 
 ---
 
-####################################################
-# STATEFULSETS
-####################################################
-
-kind: StatefulSet
 apiVersion: apps/v1
+kind: Deployment
 metadata:
   labels:
-    application: jaime-agent-cluster
+    application: jaime
     component: agent
   name: jaime-agent-cluster
   namespace: jaime
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: jaime-agent-cluster
+  replicas: 1
   template:
     metadata:
       labels:
         app: jaime-agent-cluster
     spec:
       volumes:
-        - name: jaime-agents-pvc
+        - name: jaime-pvc
           persistentVolumeClaim:
-            claimName: jaime-agents-pvc
+            claimName: jaime-pvc
       containers:
-        - name: jaime-agent-cluster
+        - name: jaime
           image: 'ghcr.io/jaime-project/jaime-agent-cluster:0.4.0'
           securityContext:
-            allowPrivilegeEscalation: false
             runAsNonRoot: true
-            capabilities:
-              drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
-          ports:
-            - name: agent
-              containerPort: 7001
-              protocol: TCP
           env:
             - name: JAIME_URL
-              value: http://jaime-back:5000
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-          - name: jaime-agents-pvc
-            mountPath: /home/jaime/shared/
-      
-  serviceName: jaime-agent-cluster
-  podManagementPolicy: OrderedReady
-  updateStrategy:
-    type: RollingUpdate
-
----
-
-kind: StatefulSet
-apiVersion: apps/v1
-metadata:
-  labels:
-    application: jaime-agent-pushgateway
-    component: agent
-  name: jaime-agent-pushgateway
-  namespace: jaime
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jaime-agent-pushgateway
-  template:
-    metadata:
-      labels:
-        app: jaime-agent-pushgateway
-    spec:
-      volumes:
-        - name: jaime-agents-pvc
-          persistentVolumeClaim:
-            claimName: jaime-agents-pvc
-      containers:
-        - name: jaime-agent-base
-          image: 'ghcr.io/jaime-project/jaime-agent-pushgateway:0.4.0'
-          securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            capabilities:
-              drop: ["ALL"]
-            seccompProfile:
-              type: RuntimeDefault
+              value: http://jaime-back:5000/
           ports:
-            - name: agent
-              containerPort: 7001
+            - containerPort: 7001
               protocol: TCP
-            - name: gateway
-              containerPort: 9091
-              protocol: TCP
-          env:
-            - name: JAIME_URL
-              value: http://jaime-back:5000
-          imagePullPolicy: IfNotPresent
           volumeMounts:
-            - name: jaime-agents-pvc
-              mountPath: /home/jaime/shared/
-    
-  serviceName: jaime-agent-pushgateway
-  podManagementPolicy: OrderedReady
-  updateStrategy:
-    type: RollingUpdate
+            - name: jaime-pvc
+              mountPath: /home/jaime/
 
 ---
 
@@ -453,29 +353,14 @@ metadata:
   namespace: jaime
 spec:
   accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  volumeMode: Filesystem
-
----
-
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: jaime-agents-pvc
-  namespace: jaime
-spec:
-  accessModes:
     - ReadWriteMany
+  storageClassName: ocs-storagecluster-cephfs
   resources:
     requests:
       storage: 10Gi
   volumeMode: Filesystem
 
 ---
-
 
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -487,7 +372,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
   volumeMode: Filesystem
 
 ---
