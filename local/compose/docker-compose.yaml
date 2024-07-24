@@ -17,6 +17,7 @@ services:
         container_name: jaime-back
         hostname: jaime-back
         image: ghcr.io/jaime-project/jaime-back:0.4.0
+        user: "1001"
         environment:
             DB_URL: postgresql+pg8000://postgres:postgres@jaime-postgres:5432/jaime
             JAIME_USER: admin
@@ -41,6 +42,7 @@ services:
 
     agent-base:
         image: ghcr.io/jaime-project/jaime-agent:0.4.0
+        user: "1001"
         environment:
             - JAIME_URL=http://jaime-back:5000
         volumes:
@@ -52,31 +54,33 @@ services:
         deploy:
             replicas: 1
 
-    # agent-cluster:
-    #     image: ghcr.io/jaime-project/jaime-agent-cluster:0.4.0
-    #     environment:
-    #         - JAIME_URL=http://jaime-back:5000
-    #     volumes:
-    #         - jaime:/home/jaime/:rw
-    #     expose:
-    #         - 7001
-    #     depends_on:
-    #         - jaime-back
-    #     deploy:
-    #         replicas: 1
+    agent-cluster:
+        image: ghcr.io/jaime-project/jaime-agent-cluster:0.4.0
+        user: "1001"
+        environment:
+            - JAIME_URL=http://jaime-back:5000
+        volumes:
+            - jaime:/home/jaime/:rw
+        expose:
+            - 7001
+        depends_on:
+            - jaime-back
+        deploy:
+            replicas: 1
 
-    # agent-pushgateway:
-    #     image: ghcr.io/jaime-project/jaime-agent-pushgateway:0.4.0
-    #     environment:
-    #         - JAIME_URL=http://jaime-back:5000
-    #     volumes:
-    #         - jaime:/home/jaime/:rw
-    #     expose:
-    #         - 7001
-    #     depends_on:
-    #         - jaime-back
-    #     deploy:
-    #         replicas: 1
+    agent-pushgateway:
+        image: ghcr.io/jaime-project/jaime-agent-pushgateway:0.4.0
+        user: "1001"
+        environment:
+            - JAIME_URL=http://jaime-back:5000
+        volumes:
+            - jaime:/home/jaime/:rw
+        expose:
+            - 7001
+        depends_on:
+            - jaime-back
+        deploy:
+            replicas: 1
 
 volumes:
     jaime:
