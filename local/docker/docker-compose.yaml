@@ -16,15 +16,15 @@ services:
     jaime-back:
         container_name: jaime-back
         hostname: jaime-back
-        image: ghcr.io/jaime-project/jaime-back:0.1.0
+        image: ghcr.io/jaime-project/jaime-back:0.4.0
         environment:
             - DB_URL=postgresql+pg8000://postgres:postgres@localhost:5432/jaime
             - JAIME_USER=admin
             - JAIME_PASS=admin
             - PYTHON_PORT=5000
         volumes:
-            - jaime:/home/jaime/.jaime:rw
-            - shared:/home/jaime/.shared:rw
+            - jaime:/home/jaime/local:rw
+            - shared:/home/jaime/shared:rw
         network_mode: host
         depends_on:
             - postgres
@@ -32,7 +32,7 @@ services:
     jaime-front:
         container_name: jaime-front
         hostname: jaime-front
-        image: ghcr.io/jaime-project/jaime-front:0.1.0
+        image: ghcr.io/jaime-project/jaime-front:0.4.0
         environment:
             - JAIME_URL=http://localhost:5000
         network_mode: host
@@ -40,12 +40,12 @@ services:
     agent-cluster:
         container_name: agent-cluster
         hostname: agent-cluster
-        image: ghcr.io/jaime-project/jaime-agent-cluster:0.1.0
+        image: ghcr.io/jaime-project/jaime-agent-cluster:0.4.0
         environment:
             - JAIME_URL=http://localhost:5000
             - PYTHON_PORT=7001
         volumes:
-            - shared:/home/jaime/.shared
+            - shared:/home/jaime/shared
         network_mode: host
         depends_on:
             - jaime-back
@@ -53,12 +53,12 @@ services:
     agent-pushgateway:
         container_name: agent-pushgateway
         hostname: agent-pushgateway
-        image: ghcr.io/jaime-project/jaime-agent-pushgateway:0.1.0
+        image: ghcr.io/jaime-project/jaime-agent-pushgateway:0.4.0
         environment:
             - JAIME_URL=http://localhost:5000
             - PYTHON_PORT=7002
         volumes:
-            - shared:/home/jaime/.shared
+            - shared:/home/jaime/shared
         network_mode: host
         depends_on:
             - jaime-back
