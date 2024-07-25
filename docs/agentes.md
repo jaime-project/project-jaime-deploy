@@ -29,6 +29,8 @@ resultado = tools.sh('echo "hola mundo redondo"')
 | new_message       | **title**: str, **subject**: str, **body**: str, **files**: List[str] = [] | str                   | Genera un mensaje en Jaime. Para los arhivos adjuntos es requerido que se utilice las rutas relativas iguales a como se las usa en el script |
 | get_from_storage  | **path**: str  | bytes | Obtiene los bytes de un archivo dentro del storage |
 | save_in_storage  | **path**: str, **content**: bytes | - | Guarda los bytes de un archivo dentro del storage |
+| storage_path  | - | str | Devuelve el path del storage |
+| workingdir_path  | - | str | Devuelve el path del workingdir |
 
 ---
 
