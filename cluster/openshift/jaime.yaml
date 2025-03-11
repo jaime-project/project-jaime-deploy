@@ -5,10 +5,59 @@
 kind: Project
 apiVersion: project.openshift.io/v1
 metadata:
-  name: 3scale
+  name: jaime
   labels:
     application: jaime
 
+---
+
+####################################################
+# SA
+####################################################
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jaime
+  namespace: jaime
+  labels:
+    application: jaime
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: jaime-admin
+  labels:
+    application: jaime
+subjects:
+  - kind: ServiceAccount
+    name: jaime
+    namespace: jaime
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+
+---
+
+####################################################
+# CONFIGMAPS
+####################################################
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaime-config
+  namespace: jaime
+  labels:
+    application: jaime
+data: 
+  JAIME_BACK_URL_EXTERNAL: https://<jaime-route-url>/
+  JAIME_BACK_URL_INTERNAL: http://jaime-back:5000/
+
+---
 
 ####################################################
 # SECRETS
@@ -17,48 +66,50 @@ metadata:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: credentials-jaime
+  name: jaime-secrets
   namespace: jaime
-type: Opaque 
-data: 
-  JAIME_USER: YWRtaW4=
-  JAIME_PASS: YWRtaW4=
+  labels:
+    application: jaime
+    component: backend
+stringData: 
+  JAIME_USER: jaime
+  JAIME_PASS: jaime
+  DB_URL: postgresql+pg8000://jaime:jaime@postgres:5432/jaime
 
 ---
 
 apiVersion: v1
 kind: Secret
 metadata:
-  name: credentials-postgres
+  name: postgres-secrets
   namespace: jaime
-type: Opaque 
-data: 
-  POSTGRES_USER: cG9zdGdyZXM=
-  POSTGRES_PASSWORD: cG9zdGdyZXM=
+  labels:
+    application: jaime
+    component: db
+stringData: 
+  POSTGRES_USER: jaime
+  POSTGRES_PASSWORD: jaime
+  POSTGRES_DB: jaime
+
+---
+
+kind: Secret
+apiVersion: v1
+metadata:
+  name: auth-cluster-jaime
+  namespace: jaime
+  labels:
+    application: jaime
+    component: backend
+  annotations:
+    kubernetes.io/service-account.name: jaime
+type: kubernetes.io/service-account-token
 
 ---
 
 ####################################################
 # SERVICES
 ####################################################
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: jaime-back
-  namespace: jaime
-  labels:
-    application: jaime
-    component: server
-spec:
-  selector:
-    app: jaime-back
-  ports:
-    - protocol: TCP
-      port: 5000
-      targetPort: 5000
-
----
 
 apiVersion: v1
 kind: Service
@@ -75,6 +126,41 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-back
+  namespace: jaime
+  labels:
+    application: jaime
+    component: backend
+spec:
+  selector:
+    app: jaime-back
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaime-agent-cluster
+  namespace: jaime
+  labels:
+    application: jaime
+    component: agent
+spec:
+  ports:
+  - port: 7001
+    name: agent
+  selector:
+    app: jaime-agent-cluster
 
 ---
 
@@ -124,31 +210,10 @@ metadata:
   namespace: jaime
   labels:
     application: jaime
-    component: server
+    component: backend
 spec:
   to:
     name: jaime-back
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
-  wildcardPolicy: None
-
----
-
-kind: Route
-apiVersion: route.openshift.io/v1
-id: jaime-pushgateway
-metadata:
-  name: jaime-pushgateway
-  namespace: jaime
-  labels:
-    application: jaime
-    component: agent
-spec:
-  to:
-    name: jaime-agent-pushgateway
-  port:
-    targetPort: pushgateway
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
@@ -165,14 +230,57 @@ kind: Deployment
 metadata:
   labels:
     application: jaime
-    component: server
+    component: frontend
+  name: jaime-front
+  namespace: jaime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaime-front
+  template:
+    metadata:
+      labels:
+        app: jaime-front
+    spec:
+      containers:
+        - name: jaime
+          image: 'ghcr.io/jaime-project/jaime-front:0.4.0'
+          securityContext:
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: JAIME_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: jaime-config
+                  key: JAIME_BACK_URL_EXTERNAL
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+
+---
+
+####################################################
+# STATEFULSETS
+####################################################
+
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    application: jaime-back
+    component: backend
   name: jaime-back
   namespace: jaime
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: jaime-back
-  replicas: 1
+  serviceName: jaime-back
   template:
     metadata:
       labels:
@@ -183,72 +291,89 @@ spec:
           persistentVolumeClaim:
             claimName: jaime-pvc
       containers:
-        - name: jaime
+        - name: jaime-back
           image: 'ghcr.io/jaime-project/jaime-back:0.4.0'
           securityContext:
-            runAsNonRoot: true
-          env:
-            - name: DB_URL
-              value: postgresql+pg8000://postgres:postgres@postgres:5432/jaime
-          envFrom:
-            - secretRef:
-                name: credentials-jaime
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           ports:
             - containerPort: 5000
               protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: jaime-config
+            - secretRef:
+                name: jaime-secrets
+          imagePullPolicy: Always
           volumeMounts:
             - name: jaime-pvc
               mountPath: /home/jaime/
-      
 
 ---
 
+kind: StatefulSet
 apiVersion: apps/v1
-kind: Deployment
 metadata:
   labels:
-    application: jaime
-    component: frontend
-  name: jaime-front
+    application: jaime-agent-cluster
+    component: agent
+  name: jaime-agent-cluster
   namespace: jaime
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: jaime-front
-  replicas: 1
+      app: jaime-agent-cluster
+  serviceName: jaime-agent-cluster
   template:
     metadata:
       labels:
-        app: jaime-front
+        app: jaime-agent-cluster
     spec:
+      volumes:
+        - name: jaime-pvc
+          persistentVolumeClaim:
+            claimName: jaime-pvc
       containers:
-        - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-front:0.4.0'
+        - name: jaime-agent-cluster
+          image: 'ghcr.io/jaime-project/jaime-agent-cluster:0.4.0'
           securityContext:
-            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - containerPort: 7001
+              protocol: TCP
           env:
             - name: JAIME_URL
-              value: https://<jaime-route-url>/
-          ports:
-            - containerPort: 8080
-          protocol: TCP
-      
+              valueFrom:
+                configMapKeyRef:
+                  name: jaime-config
+                  key: JAIME_BACK_URL_INTERNAL
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: jaime-pvc
+              mountPath: /home/jaime/shared
 
 ---
 
+kind: StatefulSet
 apiVersion: apps/v1
-kind: Deployment
 metadata:
   labels:
-    application: jaime
+    application: postgres
     component: db
   name: postgres
   namespace: jaime
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: postgres
-  replicas: 1
+  serviceName: postgres
   template:
     metadata:
       labels:
@@ -261,96 +386,21 @@ spec:
       containers:
         - name: postgres
           image: docker.io/library/postgres:15
-          env:
-            - name: POSTGRES_DB
-              value: jaime
-          envFrom:
-            - secretRef:
-                name: credentials-postgres
+          securityContext:
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           ports:
             - containerPort: 5432
               protocol: UDP
+          envFrom:
+            - secretRef:
+                name: postgres-secrets
+          imagePullPolicy: Always
           volumeMounts:
             - name: postgres-pvc
               mountPath: /var/lib/postgresql
-      
----
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    application: jaime
-    component: agent
-  name: jaime-agent
-  namespace: jaime
-spec:
-  selector:
-    matchLabels:
-      app: jaime-agent
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: jaime-agent
-    spec:
-      volumes:
-        - name: jaime-pvc
-          persistentVolumeClaim:
-            claimName: jaime-pvc
-      containers:
-        - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-agent:0.4.0'
-          securityContext:
-            runAsNonRoot: true
-          env:
-            - name: JAIME_URL
-              value: http://jaime-back:5000/
-          ports:
-            - containerPort: 7001
-              protocol: TCP
-          volumeMounts:
-            - name: jaime-pvc
-              mountPath: /home/jaime/
-
----
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    application: jaime
-    component: agent
-  name: jaime-agent-cluster
-  namespace: jaime
-spec:
-  selector:
-    matchLabels:
-      app: jaime-agent-cluster
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: jaime-agent-cluster
-    spec:
-      volumes:
-        - name: jaime-pvc
-          persistentVolumeClaim:
-            claimName: jaime-pvc
-      containers:
-        - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-agent-cluster:0.4.0'
-          securityContext:
-            runAsNonRoot: true
-          env:
-            - name: JAIME_URL
-              value: http://jaime-back:5000/
-          ports:
-            - containerPort: 7001
-              protocol: TCP
-          volumeMounts:
-            - name: jaime-pvc
-              mountPath: /home/jaime/
 
 ---
 
@@ -363,10 +413,12 @@ apiVersion: v1
 metadata:
   name: jaime-pvc
   namespace: jaime
+  labels:
+    application: jaime
+    component: back
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: ocs-storagecluster-cephfs
   resources:
     requests:
       storage: 10Gi
@@ -379,44 +431,15 @@ apiVersion: v1
 metadata:
   name: postgres-pvc
   namespace: jaime
+  labels:
+    application: postgres
+    component: db
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 10Gi
   volumeMode: Filesystem
 
 ---
-
-####################################################
-# SA
-####################################################
-
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: jaime
-  namespace: jaime
-  labels:
-    application: jaime
-
----
-
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: jaime-admin
-  labels:
-    application: jaime
-subjects:
-  - kind: ServiceAccount
-    name: jaime
-    namespace: jaime
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: admin
-
----
-
