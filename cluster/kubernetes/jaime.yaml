@@ -172,7 +172,7 @@ spec:
             claimName: jaime-pvc
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-back:0.4.0'
+          image: 'ghcr.io/jaime-project/jaime-back:0.5.0'
           securityContext:
             runAsNonRoot: true
           env:
@@ -211,7 +211,7 @@ spec:
     spec:
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-front:0.4.0'
+          image: 'ghcr.io/jaime-project/jaime-front:0.5.0'
           securityContext:
             runAsNonRoot: true
           env:
@@ -288,7 +288,7 @@ spec:
             claimName: jaime-pvc
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-agent:0.4.0'
+          image: 'ghcr.io/jaime-project/jaime-agent:0.5.0'
           securityContext:
             runAsNonRoot: true
           env:
@@ -327,7 +327,7 @@ spec:
             claimName: jaime-pvc
       containers:
         - name: jaime
-          image: 'ghcr.io/jaime-project/jaime-agent-cluster:0.4.0'
+          image: 'ghcr.io/jaime-project/jaime-agent-cluster:0.5.0'
           securityContext:
             runAsNonRoot: true
           env:
