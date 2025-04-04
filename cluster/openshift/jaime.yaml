@@ -188,7 +188,7 @@ spec:
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: jaime-front
+  name: jaime
   namespace: jaime
   labels:
     application: jaime
