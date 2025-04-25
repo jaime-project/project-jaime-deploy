@@ -263,12 +263,8 @@ spec:
 
 ---
 
-####################################################
-# STATEFULSETS
-####################################################
-
-kind: StatefulSet
 apiVersion: apps/v1
+kind: Deployment
 metadata:
   labels:
     application: jaime-back
@@ -280,7 +276,6 @@ spec:
   selector:
     matchLabels:
       app: jaime-back
-  serviceName: jaime-back
   template:
     metadata:
       labels:
@@ -313,8 +308,8 @@ spec:
 
 ---
 
-kind: StatefulSet
 apiVersion: apps/v1
+kind: Deployment
 metadata:
   labels:
     application: jaime-agent-cluster
@@ -326,7 +321,6 @@ spec:
   selector:
     matchLabels:
       app: jaime-agent-cluster
-  serviceName: jaime-agent-cluster
   template:
     metadata:
       labels:
@@ -359,6 +353,10 @@ spec:
               mountPath: /home/jaime/shared
 
 ---
+
+####################################################
+# STATEFULSETS
+####################################################
 
 kind: StatefulSet
 apiVersion: apps/v1
